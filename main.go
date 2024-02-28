@@ -14,13 +14,19 @@ import (
 )
 
 func main() {
+	//DB connection
+	orm.Debug = true
+	conn := "root:WhisperingW@ves22@tcp(127.0.0.1:3306)/schedulerdb?charset=utf8&parseTime=true&loc=Local"
 	orm.RegisterDriver("mysql", orm.DRMySQL)
-	err := orm.RegisterDataBase("default", "mysql", "root:WhisperingW@ves22@tcp(127.0.0.1:3306)/schedulerdb?charset=utf8&parseTime=true&loc=Local")
+	err := orm.RegisterDataBase("default", "mysql", conn)
 	if err != nil {
 		errors.New(fmt.Sprintf("connect to database failed, err: %v", err))
 		return
 	}
 	orm.RegisterModel(new(models.Task))
+	orm.RunSyncdb("default", true, true)
+
+	//CORS permitions
 	beego.InsertFilter("*", beego.BeforeRouter, cors.Allow(&cors.Options{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"PUT", "PATCH", "POST", "GET ", "OPTIONS"},
@@ -28,6 +34,7 @@ func main() {
 		ExposeHeaders:    []string{"Content-Length", "Access-Control-Allow-Origin"},
 		AllowCredentials: true,
 	}))
+
 	if beego.BConfig.RunMode == "dev" {
 		beego.BConfig.WebConfig.DirectoryIndex = true
 		beego.BConfig.WebConfig.StaticDir["/swagger"] = "swagger"

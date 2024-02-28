@@ -19,7 +19,7 @@ func init() {
 }
 
 type Task struct {
-	task_code   string
+	Task_code   string
 	Title       string
 	Description string
 	Location    string
@@ -30,14 +30,14 @@ type Task struct {
 func AddTask(t Task) (string, error) {
 	o := orm.NewOrm()
 
-	t.task_code = "task_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-	TaskList[t.task_code] = &t
+	t.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	TaskList[t.Task_code] = &t
 	_, insertErr := o.Insert(&t)
 	if insertErr != nil {
 		return "", errors.New("failed to insert task to database")
 	}
 
-	return t.task_code, nil
+	return t.Task_code, nil
 }
 
 func GetTask(tid string) (u *Task, err error) {
