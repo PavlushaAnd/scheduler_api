@@ -21,7 +21,7 @@ type TaskController struct {
 func (t *TaskController) Post() {
 	var task models.Task
 	json.Unmarshal(t.Ctx.Input.RequestBody, &task)
-	tid := models.AddTask(task)
+	tid, _ := models.AddTask(task)
 	t.Data["json"] = map[string]string{"tid": tid}
 	t.ServeJSON()
 }

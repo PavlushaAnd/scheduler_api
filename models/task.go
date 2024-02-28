@@ -4,6 +4,8 @@ import (
 	"errors"
 	"strconv"
 	"time"
+
+	"github.com/beego/beego/v2/client/orm"
 )
 
 var (
@@ -17,7 +19,7 @@ func init() {
 }
 
 type Task struct {
-	Id          string
+	task_code   string
 	Title       string
 	Description string
 	Location    string
@@ -25,10 +27,17 @@ type Task struct {
 	EndDate     string `json:"EndDate" orm:"auto_now;type(datetime)"`
 }
 
-func AddTask(t Task) string {
-	t.Id = "task_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-	TaskList[t.Id] = &t
-	return t.Id
+func AddTask(t Task) (string, error) {
+	o := orm.NewOrm()
+
+	t.task_code = "task_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	TaskList[t.task_code] = &t
+	_, insertErr := o.Insert(&t)
+	if insertErr != nil {
+		return "", errors.New("failed to insert task to database")
+	}
+
+	return t.task_code, nil
 }
 
 func GetTask(tid string) (u *Task, err error) {
@@ -53,12 +62,12 @@ func UpdateTask(tid string, tt *Task) (a *Task, err error) {
 		if tt.Location != "" {
 			t.Location = tt.Location
 		}
-		/* if tt.StartDate != nil {
+		if tt.StartDate != "" {
 			t.StartDate = tt.StartDate
 		}
-		if tt.EndDate != nil {
+		if tt.EndDate != "" {
 			t.EndDate = tt.EndDate
-		} */
+		}
 		return t, nil
 	}
 	return nil, errors.New("Task Not Exist")

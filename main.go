@@ -1,10 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"scheduler_api/models"
 	_ "scheduler_api/routers"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/pkg/errors"
 
 	"github.com/beego/beego/v2/client/orm"
 	beego "github.com/beego/beego/v2/server/web"
@@ -13,7 +15,11 @@ import (
 
 func main() {
 	orm.RegisterDriver("mysql", orm.DRMySQL)
-	orm.RegisterDataBase("default", "mysql", "root:WhisperingW@ves22@/schedulerdb?charset=utf8")
+	err := orm.RegisterDataBase("default", "mysql", "root:WhisperingW@ves22@tcp(127.0.0.1:3306)/schedulerdb?charset=utf8&parseTime=true&loc=Local")
+	if err != nil {
+		errors.New(fmt.Sprintf("connect to database failed, err: %v", err))
+		return
+	}
 	orm.RegisterModel(new(models.Task))
 	beego.InsertFilter("*", beego.BeforeRouter, cors.Allow(&cors.Options{
 		AllowOrigins:     []string{"*"},
