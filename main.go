@@ -16,10 +16,10 @@ func main() {
 	orm.RegisterDataBase("default", "mysql", "root:WhisperingW@ves22@/schedulerdb?charset=utf8")
 	orm.RegisterModel(new(models.Task))
 	beego.InsertFilter("*", beego.BeforeRouter, cors.Allow(&cors.Options{
-		AllowOrigins:     []string{"http://localhost:3000/"},
-		AllowMethods:     []string{"PUT", "PATCH", "POST", "GET "},
-		AllowHeaders:     []string{"Origin"},
-		ExposeHeaders:    []string{"Content-Length"},
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"PUT", "PATCH", "POST", "GET ", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Access-Control-Allow-Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method", "Access-Control-Allow-Headers"},
+		ExposeHeaders:    []string{"Content-Length", "Access-Control-Allow-Origin"},
 		AllowCredentials: true,
 	}))
 	if beego.BConfig.RunMode == "dev" {

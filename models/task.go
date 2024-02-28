@@ -12,7 +12,8 @@ var (
 
 func init() {
 	TaskList = make(map[string]*Task)
-	t := Task{"user_11111", "task1", "simple description", "default location", "01.01.2000 18:12", "01.01.2000 20:00"}
+	now := time.Now()
+	t := Task{"user_11111", "task1", "simple description", "default location", now, now}
 	TaskList["user_11111"] = &t
 }
 
@@ -21,12 +22,12 @@ type Task struct {
 	Title       string
 	Description string
 	Location    string
-	StartDate   string
-	EndDate     string
+	StartDate   time.Time
+	EndDate     time.Time
 }
 
 func AddTask(t Task) string {
-	t.Id = "user_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	t.Id = "task_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	TaskList[t.Id] = &t
 	return t.Id
 }
@@ -53,12 +54,12 @@ func UpdateTask(tid string, tt *Task) (a *Task, err error) {
 		if tt.Location != "" {
 			t.Location = tt.Location
 		}
-		if tt.StartDate != "" {
+		/* if tt.StartDate != nil {
 			t.StartDate = tt.StartDate
 		}
-		if tt.EndDate != "" {
+		if tt.EndDate != nil {
 			t.EndDate = tt.EndDate
-		}
+		} */
 		return t, nil
 	}
 	return nil, errors.New("Task Not Exist")
