@@ -12,8 +12,7 @@ var (
 
 func init() {
 	TaskList = make(map[string]*Task)
-	now := time.Now()
-	t := Task{"user_11111", "task1", "simple description", "default location", now, now}
+	t := Task{"user_11111", "task1", "simple description", "default location", "01.01.2024 17:25", "01.01.2024 18:20"}
 	TaskList["user_11111"] = &t
 }
 
@@ -22,8 +21,8 @@ type Task struct {
 	Title       string
 	Description string
 	Location    string
-	StartDate   time.Time
-	EndDate     time.Time
+	StartDate   string `json:"StartDate" orm:"auto_now_add;type(datetime)"`
+	EndDate     string `json:"EndDate" orm:"auto_now;type(datetime)"`
 }
 
 func AddTask(t Task) string {
