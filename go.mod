@@ -5,6 +5,7 @@ go 1.22.0
 require (
 	github.com/beego/beego/v2 v2.1.6
 	github.com/go-sql-driver/mysql v1.7.1
+	github.com/pkg/errors v0.9.1
 )
 
 require (
