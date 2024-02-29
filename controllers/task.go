@@ -19,7 +19,7 @@ type TaskController struct {
 // @Failure 403 body is empty
 // @router / [post]
 func (t *TaskController) Post() {
-	var task models.Task
+	var task models.FTask
 	json.Unmarshal(t.Ctx.Input.RequestBody, &task)
 	t_code, _ := models.AddTask(task)
 	t.Data["json"] = map[string]string{"task_code": t_code}
