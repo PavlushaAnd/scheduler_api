@@ -31,8 +31,12 @@ func (t *TaskController) Post() {
 // @Success 200 {object} models.Task
 // @router / [get]
 func (t *TaskController) GetAll() {
-	tasks := models.GetAllTasks()
-	t.Data["json"] = tasks
+	tasks, err := models.GetAllTasks()
+	if err != nil {
+		t.Data["json"] = err.Error()
+	} else {
+		t.Data["json"] = tasks
+	}
 	t.ServeJSON()
 }
 

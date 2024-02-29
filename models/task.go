@@ -59,8 +59,26 @@ func GetTask(tid string) (u *Task, err error) {
 	return nil, errors.New("Task not exists")
 }
 
-func GetAllTasks() map[string]*Task {
-	return TaskList
+func GetAllTasks() ([]FTask, error) {
+	// New ORM object
+	o := orm.NewOrm()
+
+	var t []Task
+
+	count, e := o.QueryTable(new(Task)).All(&t)
+	if e != nil {
+		return nil, e
+	}
+
+	if count <= 0 {
+		return nil, errors.New("nothing found")
+	}
+
+	var tf []FTask
+	for _, v := range t {
+		tf = append(tf, ConvertToFrontend(v))
+	}
+	return tf, nil
 }
 
 func UpdateTask(tid string, tt *Task) (a *Task, err error) {
@@ -108,5 +126,18 @@ func ConvertToBackend(t FTask) Task {
 	res.Description = t.Description
 	res.Task_code = t.Task_code
 	res.Location = t.Location
+	return res
+}
+
+func ConvertToFrontend(t Task) FTask {
+	var res FTask
+	startDate := t.StartDate.Format(customLayout)
+	endDate := t.EndDate.Format(customLayout)
+	res.Title = t.Title
+	res.Description = t.Description
+	res.Task_code = t.Task_code
+	res.Location = t.Location
+	res.EndDate = endDate
+	res.StartDate = startDate
 	return res
 }
