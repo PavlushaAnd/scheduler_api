@@ -41,13 +41,13 @@ func (t *TaskController) GetAll() {
 }
 
 // @Title GetTask
-// @Description get user by tid
+// @Description get task by tid
 // @Param	tid		path 	string	true		"The key for staticblock"
 // @Success 200 {object} models.Task
 // @Failure 403 :tid is empty
-// @router /:tid [get]
+// @router /:task_code [get]
 func (t *TaskController) Get() {
-	tid := t.GetString(":tid")
+	tid := t.GetString(":task_code")
 	if tid != "" {
 		task, err := models.GetTask(tid)
 		if err != nil {
