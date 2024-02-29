@@ -21,10 +21,11 @@ func init() {
 }
 
 type Task struct {
-	Task_code   string
-	Title       string
-	Description string
-	Location    string
+	//Id          int `orm:"column(id)"`
+	Task_code   string    `orm:"column(task_code)"`
+	Title       string    `orm:"column(title)"`
+	Description string    `orm:"column(description)"`
+	Location    string    `orm:"column(location)"`
 	StartDate   time.Time `json:"StartDate" orm:"auto_now_add ;type(datetime)"`
 	EndDate     time.Time `json:"EndDate" orm:"auto_now; type(datetime)"`
 }
@@ -52,15 +53,40 @@ func AddTask(t FTask) (string, error) {
 	return t.Task_code, nil
 }
 
-func GetTask(tid string) (u *Task, err error) {
-	if t, ok := TaskList[tid]; ok {
-		return t, nil
+func GetTask(tid string) (*Task, error) {
+	o := orm.NewOrm()
+
+	// Init user with Id
+	t := &Task{Task_code: tid}
+
+	// Read from database
+	o.QueryTable("task").Filter("task_code", tid).One(t)
+	if t.StartDate.IsZero() {
+		return nil, errors.New("Task not exist")
 	}
-	return nil, errors.New("Task not exists")
+	return t, nil
 }
 
-func GetAllTasks() map[string]*Task {
-	return TaskList
+func GetAllTasks() ([]FTask, error) {
+	// New ORM object
+	o := orm.NewOrm()
+
+	var t []Task
+
+	count, e := o.QueryTable(new(Task)).All(&t)
+	if e != nil {
+		return nil, e
+	}
+
+	if count <= 0 {
+		return nil, errors.New("nothing found")
+	}
+
+	var tf []FTask
+	for _, v := range t {
+		tf = append(tf, ConvertToFrontend(v))
+	}
+	return tf, nil
 }
 
 func UpdateTask(tid string, tt *Task) (a *Task, err error) {
@@ -108,5 +134,18 @@ func ConvertToBackend(t FTask) Task {
 	res.Description = t.Description
 	res.Task_code = t.Task_code
 	res.Location = t.Location
+	return res
+}
+
+func ConvertToFrontend(t Task) FTask {
+	var res FTask
+	startDate := t.StartDate.Format(customLayout)
+	endDate := t.EndDate.Format(customLayout)
+	res.Title = t.Title
+	res.Description = t.Description
+	res.Task_code = t.Task_code
+	res.Location = t.Location
+	res.EndDate = endDate
+	res.StartDate = startDate
 	return res
 }
