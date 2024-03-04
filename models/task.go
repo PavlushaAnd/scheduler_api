@@ -113,8 +113,14 @@ func UpdateTask(tid string, tt *FTask) (a *FTask, err error) {
 	return &res, nil
 }
 
-func DeleteTask(tid string) {
-	delete(TaskList, tid)
+func DeleteTask(tid string) error {
+	o := orm.NewOrm()
+
+	_, err := o.QueryTable("task").Filter("task_code", tid).Delete()
+	if err != nil {
+		return errors.New("deletion problem")
+	}
+	return nil
 }
 
 const customLayout = "2006.01.02 15:04"
