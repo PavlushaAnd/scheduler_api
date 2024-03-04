@@ -21,10 +21,10 @@ func init() {
 }
 
 type Task struct {
-	//Id          int `orm:"column(id)"`
+	Id          int       `orm:"column(id)"`
 	Task_code   string    `orm:"column(task_code)"`
 	Title       string    `orm:"column(title)"`
-	Description string    `orm:"column(description)"`
+	Description string    `orm:"column(description); null"`
 	Location    string    `orm:"column(location)"`
 	StartDate   time.Time `json:"StartDate" orm:"auto_now_add ;type(datetime)"`
 	EndDate     time.Time `json:"EndDate" orm:"auto_now; type(datetime)"`
