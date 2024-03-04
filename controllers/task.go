@@ -69,7 +69,7 @@ func (t *TaskController) Get() {
 func (t *TaskController) Put() {
 	tid := t.GetString(":task_code")
 	if tid != "" {
-		var task models.Task
+		var task models.FTask
 		json.Unmarshal(t.Ctx.Input.RequestBody, &task)
 		tt, err := models.UpdateTask(tid, &task)
 		if err != nil {
