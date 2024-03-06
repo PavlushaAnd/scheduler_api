@@ -1,10 +1,13 @@
 // @APIVersion 1.0.0
-// @Title beego Test API
-// @Description beego has a very cool tools to autogenerate documents for your API
-// @Contact astaxie@gmail.com
+// @Title Scheduler Test API
+// @Description API fot scheduler application
+// @Contact pavelkiwiandrosov.00@gmail.com
 // @TermsOfServiceUrl http://beego.me/
 // @License Apache 2.0
 // @LicenseUrl http://www.apache.org/licenses/LICENSE-2.0.html
+// @host localhost:8080
+// @BasePath /v1
+
 package routers
 
 import (
