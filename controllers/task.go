@@ -89,7 +89,16 @@ func (t *TaskController) Put() {
 // @router /:tid [delete]
 func (t *TaskController) Delete() {
 	tid := t.GetString(":task_code")
-	models.DeleteTask(tid)
-	t.Data["json"] = "delete success!"
+	smth, err := models.DeleteTask(tid)
+	if err != nil {
+		t.Data["json"] = "delete failed!"
+	} else {
+		if smth {
+			t.Data["json"] = "delete success!"
+		} else {
+			t.Data["json"] = "nothing to delete!"
+		}
+	}
+
 	t.ServeJSON()
 }

@@ -113,27 +113,32 @@ func UpdateTask(tid string, tt *FTask) (a *FTask, err error) {
 	return &res, nil
 }
 
-func DeleteTask(tid string) error {
+func DeleteTask(tid string) (bool, error) {
 	o := orm.NewOrm()
 
-	_, err := o.QueryTable("task").Filter("task_code", tid).Delete()
+	i, err := o.QueryTable("task").Filter("task_code", tid).Delete()
 	if err != nil {
-		return errors.New("deletion problem")
+		return false, errors.New("deletion problem")
 	}
-	return nil
+	if i != 0 {
+
+		return true, nil
+	}
+
+	return false, nil
 }
 
 const customLayout = "2006.01.02 15:04"
 
 func ConvertToBackend(t FTask) Task {
 	var res Task
-	startDate, err := time.ParseInLocation(customLayout, t.StartDate, time.Local)
+	startDate, err := time.ParseInLocation(time.RFC3339Nano, t.StartDate, time.Local)
 	if err != nil {
 		errors.New("Error parsing StartDate")
 	}
 	res.StartDate = startDate
 
-	endDate, err := time.ParseInLocation(customLayout, t.EndDate, time.Local)
+	endDate, err := time.ParseInLocation(time.RFC3339Nano, t.EndDate, time.Local)
 	if err != nil {
 		errors.New("Error parsing EndDate")
 	}
