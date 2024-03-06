@@ -21,10 +21,10 @@ func init() {
 }
 
 type Task struct {
-	//Id          int `orm:"column(id)"`
+	Id          int       `orm:"column(id)"`
 	Task_code   string    `orm:"column(task_code)"`
 	Title       string    `orm:"column(title)"`
-	Description string    `orm:"column(description)"`
+	Description string    `orm:"column(description); null"`
 	Location    string    `orm:"column(location)"`
 	StartDate   time.Time `json:"StartDate" orm:"auto_now_add ;type(datetime)"`
 	EndDate     time.Time `json:"EndDate" orm:"auto_now; type(datetime)"`
@@ -56,7 +56,7 @@ func AddTask(t FTask) (string, error) {
 func GetTask(tid string) (*Task, error) {
 	o := orm.NewOrm()
 
-	// Init user with Id
+	// Init task with code
 	t := &Task{Task_code: tid}
 
 	// Read from database
@@ -89,30 +89,38 @@ func GetAllTasks() ([]FTask, error) {
 	return tf, nil
 }
 
-func UpdateTask(tid string, tt *Task) (a *Task, err error) {
-	if t, ok := TaskList[tid]; ok {
-		if tt.Title != "" {
-			t.Title = tt.Title
-		}
-		if tt.Description != "" {
-			t.Description = tt.Description
-		}
-		if tt.Location != "" {
-			t.Location = tt.Location
-		}
-		if tt.StartDate.IsZero() {
-			t.StartDate = tt.StartDate
-		}
-		if tt.EndDate.IsZero() {
-			t.EndDate = tt.EndDate
-		}
-		return t, nil
+func UpdateTask(tid string, tt *FTask) (a *FTask, err error) {
+	o := orm.NewOrm()
+
+	changeTask := ConvertToBackend(*tt)
+	var updTask Task
+	err = o.QueryTable("task").Filter("task_code", tid).One(&updTask)
+	if err == orm.ErrNoRows {
+		return nil, fmt.Errorf("item with ID %v not found", tid)
+	} else if err != nil {
+		return nil, err
 	}
-	return nil, errors.New("Task Not Exist")
+	updTask.Title = changeTask.Title
+	updTask.Description = changeTask.Description
+	updTask.StartDate = changeTask.StartDate
+	updTask.EndDate = changeTask.EndDate
+	updTask.Location = changeTask.Location
+	_, err = o.Update(&updTask)
+	if err != nil {
+		return nil, err
+	}
+	res := ConvertToFrontend(updTask)
+	return &res, nil
 }
 
-func DeleteTask(tid string) {
-	delete(TaskList, tid)
+func DeleteTask(tid string) error {
+	o := orm.NewOrm()
+
+	_, err := o.QueryTable("task").Filter("task_code", tid).Delete()
+	if err != nil {
+		return errors.New("deletion problem")
+	}
+	return nil
 }
 
 const customLayout = "2006.01.02 15:04"
@@ -121,13 +129,13 @@ func ConvertToBackend(t FTask) Task {
 	var res Task
 	startDate, err := time.ParseInLocation(customLayout, t.StartDate, time.Local)
 	if err != nil {
-		errors.New(fmt.Sprintf("Error parsing StartDate:", err))
+		errors.New("Error parsing StartDate")
 	}
 	res.StartDate = startDate
 
 	endDate, err := time.ParseInLocation(customLayout, t.EndDate, time.Local)
 	if err != nil {
-		errors.New(fmt.Sprintf("Error parsing EndDate:", err))
+		errors.New("Error parsing EndDate")
 	}
 	res.EndDate = endDate
 	res.Title = t.Title

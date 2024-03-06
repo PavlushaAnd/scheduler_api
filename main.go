@@ -24,6 +24,7 @@ func main() {
 		return
 	}
 	orm.RegisterModel(new(models.Task))
+	orm.RegisterModel(new(models.User))
 	orm.RunSyncdb("default", true, true)
 
 	//CORS permitions

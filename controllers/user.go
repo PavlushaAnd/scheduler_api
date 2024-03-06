@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"scheduler_api/models"
 	"encoding/json"
+	"scheduler_api/models"
 
 	beego "github.com/beego/beego/v2/server/web"
 )
@@ -62,7 +62,7 @@ func (u *UserController) Get() {
 // @Success 200 {object} models.User
 // @Failure 403 :uid is not int
 // @router /:uid [put]
-func (u *UserController) Put() {
+/* func (u *UserController) Put() {
 	uid := u.GetString(":uid")
 	if uid != "" {
 		var user models.User
@@ -76,7 +76,7 @@ func (u *UserController) Put() {
 	}
 	u.ServeJSON()
 }
-
+*/
 // @Title Delete
 // @Description delete the user
 // @Param	uid		path 	string	true		"The uid you want to delete"
@@ -116,4 +116,3 @@ func (u *UserController) Logout() {
 	u.Data["json"] = "logout success"
 	u.ServeJSON()
 }
-

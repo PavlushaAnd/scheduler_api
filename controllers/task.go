@@ -67,9 +67,9 @@ func (t *TaskController) Get() {
 // @Failure 403 :tid is not int
 // @router /:tid [put]
 func (t *TaskController) Put() {
-	tid := t.GetString(":tid")
+	tid := t.GetString(":task_code")
 	if tid != "" {
-		var task models.Task
+		var task models.FTask
 		json.Unmarshal(t.Ctx.Input.RequestBody, &task)
 		tt, err := models.UpdateTask(tid, &task)
 		if err != nil {
@@ -88,7 +88,7 @@ func (t *TaskController) Put() {
 // @Failure 403 tid is empty
 // @router /:tid [delete]
 func (t *TaskController) Delete() {
-	tid := t.GetString(":tid")
+	tid := t.GetString(":task_code")
 	models.DeleteTask(tid)
 	t.Data["json"] = "delete success!"
 	t.ServeJSON()
