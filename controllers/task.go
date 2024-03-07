@@ -12,10 +12,10 @@ type TaskController struct {
 	beego.Controller
 }
 
-// @Title PostTask
-// @Description post task
+// @Title CreateTask
+// @Description create users
 // @Param	body		body 	models.Task	true		"body for user content"
-// @Success 200 {string} models.Task.Id
+// @Success 200 {int} models.Task.Task_code
 // @Failure 403 body is empty
 // @router / [post]
 func (t *TaskController) Post() {
@@ -41,10 +41,10 @@ func (t *TaskController) GetAll() {
 }
 
 // @Title GetTask
-// @Description get task by tid
-// @Param	tid		path 	string	true		"The key for staticblock"
+// @Description get task by task_code
+// @Param	task_code		path 	string	true		"The key for staticblock"
 // @Success 200 {object} models.Task
-// @Failure 403 :tid is empty
+// @Failure 403 :task_code is empty
 // @router /:task_code [get]
 func (t *TaskController) Get() {
 	tid := t.GetString(":task_code")
@@ -61,11 +61,11 @@ func (t *TaskController) Get() {
 
 // @Title UpdateTask
 // @Description update the task
-// @Param	tid		path 	string	true		"The tid you want to update"
+// @Param	task_code		path 	string	true		"The task_code you want to update"
 // @Param	body		body 	models.Task	true		"body for task content"
 // @Success 200 {object} models.Task
-// @Failure 403 :tid is not int
-// @router /:tid [put]
+// @Failure 403 :task_code is wrong format
+// @router /taskUpd/:task_code [post]
 func (t *TaskController) Put() {
 	tid := t.GetString(":task_code")
 	if tid != "" {
@@ -83,10 +83,10 @@ func (t *TaskController) Put() {
 
 // @Title DeleteTask
 // @Description delete the task
-// @Param	tid		path 	string	true		"The uid you want to delete"
+// @Param	task_code		path 	string	true		"The task_code you want to delete"
 // @Success 200 {string} delete success!
-// @Failure 403 tid is empty
-// @router /:tid [delete]
+// @Failure 403 {task_code} is empty
+// @router /taskDel/:task_code [delete]
 func (t *TaskController) Delete() {
 	tid := t.GetString(":task_code")
 	smth, err := models.DeleteTask(tid)

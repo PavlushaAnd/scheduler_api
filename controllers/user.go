@@ -7,7 +7,7 @@ import (
 	beego "github.com/beego/beego/v2/server/web"
 )
 
-// Operations about Users
+// Operations about Users(unavailable)
 type UserController struct {
 	beego.Controller
 }
@@ -62,21 +62,10 @@ func (u *UserController) Get() {
 // @Success 200 {object} models.User
 // @Failure 403 :uid is not int
 // @router /:uid [put]
-/* func (u *UserController) Put() {
-	uid := u.GetString(":uid")
-	if uid != "" {
-		var user models.User
-		json.Unmarshal(u.Ctx.Input.RequestBody, &user)
-		uu, err := models.UpdateUser(uid, &user)
-		if err != nil {
-			u.Data["json"] = err.Error()
-		} else {
-			u.Data["json"] = uu
-		}
-	}
+func (u *UserController) Put() {
 	u.ServeJSON()
 }
-*/
+
 // @Title Delete
 // @Description delete the user
 // @Param	uid		path 	string	true		"The uid you want to delete"
