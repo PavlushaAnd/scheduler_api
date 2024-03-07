@@ -7,7 +7,7 @@ import (
 	beego "github.com/beego/beego/v2/server/web"
 )
 
-// Operations about Users
+// Operations about Users(unavailable)
 type UserController struct {
 	beego.Controller
 }
@@ -40,7 +40,7 @@ func (u *UserController) GetAll() {
 // @Description get user by uid
 // @Param	uid		path 	string	true		"The key for staticblock"
 // @Success 200 {object} models.User
-// @Failure 403 {uid} is empty
+// @Failure 403 :uid is empty
 // @router /:uid [get]
 func (u *UserController) Get() {
 	uid := u.GetString(":uid")
@@ -60,28 +60,17 @@ func (u *UserController) Get() {
 // @Param	uid		path 	string	true		"The uid you want to update"
 // @Param	body		body 	models.User	true		"body for user content"
 // @Success 200 {object} models.User
-// @Failure 403 {uid} is not int
+// @Failure 403 :uid is not int
 // @router /:uid [put]
-/* func (u *UserController) Put() {
-	uid := u.GetString(":uid")
-	if uid != "" {
-		var user models.User
-		json.Unmarshal(u.Ctx.Input.RequestBody, &user)
-		uu, err := models.UpdateUser(uid, &user)
-		if err != nil {
-			u.Data["json"] = err.Error()
-		} else {
-			u.Data["json"] = uu
-		}
-	}
+func (u *UserController) Put() {
 	u.ServeJSON()
 }
-*/
+
 // @Title Delete
 // @Description delete the user
 // @Param	uid		path 	string	true		"The uid you want to delete"
 // @Success 200 {string} delete success!
-// @Failure 403 {uid} is empty
+// @Failure 403 uid is empty
 // @router /:uid [delete]
 func (u *UserController) Delete() {
 	uid := u.GetString(":uid")

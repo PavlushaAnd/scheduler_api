@@ -1,4 +1,3 @@
-basePath: /v1
 definitions:
   models.Task:
     properties:
@@ -30,13 +29,8 @@ definitions:
       username:
         type: string
     type: object
-host: localhost:8080
 info:
   contact: {}
-  description: beego application server
-  termsOfService: http://swagger.io/terms
-  title: Swagger API
-  version: "1.0"
 paths:
   /:
     get:
@@ -173,7 +167,7 @@ paths:
           description: OK
           schema:
             type: string
-  /task:
+  /v1/task:
     get:
       description: get all Tasks
       responses:
@@ -199,7 +193,7 @@ paths:
           description: Forbidden
           schema:
             type: body
-  /task/:task_code:
+  /v1/task/:task_code:
     get:
       description: get task by task_code
       parameters:
@@ -217,7 +211,7 @@ paths:
           description: Forbidden
           schema:
             type: task_code
-  /taskDel/:task_code:
+  /v1/taskDel/:task_code:
     delete:
       description: delete the task
       parameters:
@@ -235,7 +229,7 @@ paths:
           description: Forbidden
           schema:
             type: task_code
-  /taskUpd/:task_code:
+  /v1/taskUpd/:task_code:
     put:
       description: update the task
       parameters:

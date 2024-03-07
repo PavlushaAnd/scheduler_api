@@ -12,12 +12,12 @@ type TaskController struct {
 	beego.Controller
 }
 
-// @Title PostTask
-// @Description post task
+// @Title CreateTask
+// @Description create users
 // @Param	body		body 	models.Task	true		"body for user content"
-// @Success 200 {string} models.Task.Id
+// @Success 200 {int} models.Task.Task_code
 // @Failure 403 body is empty
-// @router /task [post]
+// @router / [post]
 func (t *TaskController) Post() {
 	var task models.FTask
 	json.Unmarshal(t.Ctx.Input.RequestBody, &task)
@@ -29,7 +29,7 @@ func (t *TaskController) Post() {
 // @Title GetAllTasks
 // @Description get all Tasks
 // @Success 200 {object} models.Task
-// @router /task [get]
+// @router / [get]
 func (t *TaskController) GetAll() {
 	tasks, err := models.GetAllTasks()
 	if err != nil {
@@ -44,8 +44,8 @@ func (t *TaskController) GetAll() {
 // @Description get task by task_code
 // @Param	task_code		path 	string	true		"The key for staticblock"
 // @Success 200 {object} models.Task
-// @Failure 403 {task_code} is empty
-// @router /task/:task_code [get]
+// @Failure 403 :task_code is empty
+// @router /:task_code [get]
 func (t *TaskController) Get() {
 	tid := t.GetString(":task_code")
 	if tid != "" {
@@ -64,8 +64,8 @@ func (t *TaskController) Get() {
 // @Param	task_code		path 	string	true		"The task_code you want to update"
 // @Param	body		body 	models.Task	true		"body for task content"
 // @Success 200 {object} models.Task
-// @Failure 403 {task_code} is not int
-// @router /taskUpd/:task_code [put]
+// @Failure 403 :task_code is wrong format
+// @router /taskUpd/:task_code [post]
 func (t *TaskController) Put() {
 	tid := t.GetString(":task_code")
 	if tid != "" {
@@ -83,7 +83,7 @@ func (t *TaskController) Put() {
 
 // @Title DeleteTask
 // @Description delete the task
-// @Param	task_code		path 	string	true		"The uid you want to delete"
+// @Param	task_code		path 	string	true		"The task_code you want to delete"
 // @Success 200 {string} delete success!
 // @Failure 403 {task_code} is empty
 // @router /taskDel/:task_code [delete]

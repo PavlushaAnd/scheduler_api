@@ -5,8 +5,6 @@
 // @TermsOfServiceUrl http://beego.me/
 // @License Apache 2.0
 // @LicenseUrl http://www.apache.org/licenses/LICENSE-2.0.html
-// @host localhost:8080
-// @BasePath /v1
 
 package routers
 
@@ -22,8 +20,18 @@ func init() {
 		beego.NSRouter("/user", &controllers.UserController{}, "get:GetAll"),
 		beego.NSRouter("/task", &controllers.TaskController{}, "post:Post"),
 		beego.NSRouter("/task/:task_code", &controllers.TaskController{}, "get:Get"),
-		beego.NSRouter("/taskUpd/:task_code", &controllers.TaskController{}, "post:Put"),
-		beego.NSRouter("/taskDel/:task_code", &controllers.TaskController{}, "delete:Delete"),
+		beego.NSRouter("/task/taskUpd/:task_code", &controllers.TaskController{}, "post:Put"),
+		beego.NSRouter("/task/taskDel/:task_code", &controllers.TaskController{}, "delete:Delete"),
+		beego.NSNamespace("/task",
+			beego.NSInclude(
+				&controllers.TaskController{},
+			),
+		),
+		beego.NSNamespace("/user",
+			beego.NSInclude(
+				&controllers.UserController{},
+			),
+		),
 	)
 	beego.AddNamespace(ns)
 }

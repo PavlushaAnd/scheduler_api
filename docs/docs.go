@@ -9,7 +9,6 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms",
         "contact": {},
         "version": "{{.Version}}"
     },
@@ -217,7 +216,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/task": {
+        "/v1/task": {
             "get": {
                 "description": "get all Tasks",
                 "responses": {
@@ -258,7 +257,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/task/:task_code": {
+        "/v1/task/:task_code": {
             "get": {
                 "description": "get task by task_code",
                 "parameters": [
@@ -286,7 +285,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/taskDel/:task_code": {
+        "/v1/taskDel/:task_code": {
             "delete": {
                 "description": "delete the task",
                 "parameters": [
@@ -314,7 +313,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/taskUpd/:task_code": {
+        "/v1/taskUpd/:task_code": {
             "put": {
                 "description": "update the task",
                 "parameters": [
@@ -404,12 +403,12 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
-	Host:             "localhost:8080",
-	BasePath:         "/v1",
+	Version:          "",
+	Host:             "",
+	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Swagger API",
-	Description:      "beego application server",
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
