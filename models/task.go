@@ -26,6 +26,7 @@ type Task struct {
 	Title       string    `orm:"column(title)"`
 	Description string    `orm:"column(description); null"`
 	Location    string    `orm:"column(location)"`
+	Repeatable  bool      `orm:"column(repeatable)"`
 	StartDate   time.Time `json:"StartDate" orm:"auto_now_add ;type(datetime)"`
 	EndDate     time.Time `json:"EndDate" orm:"auto_now; type(datetime)"`
 }
