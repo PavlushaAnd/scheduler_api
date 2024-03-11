@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"scheduler_api/models"
 
 	beego "github.com/beego/beego/v2/server/web"
@@ -91,14 +92,13 @@ func (t *TaskController) Delete() {
 	tid := t.GetString(":task_code")
 	smth, err := models.DeleteTask(tid)
 	if err != nil {
-		t.Data["json"] = "delete failed!"
+		t.Data["json"] = err.Error()
 	} else {
 		if smth {
-			t.Data["json"] = "delete success!"
+			t.Data["json"] = fmt.Sprintf("%v delete success!", tid)
 		} else {
-			t.Data["json"] = "nothing to delete!"
+			t.Data["json"] = fmt.Sprintf("%v is empty", tid)
 		}
 	}
-
 	t.ServeJSON()
 }
