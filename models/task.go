@@ -9,17 +9,6 @@ import (
 	"github.com/beego/beego/v2/client/orm"
 )
 
-var (
-	TaskList map[string]*Task
-)
-
-func init() {
-	TaskList = make(map[string]*Task)
-	t := FTask{"user_11111", "task1", "simple description", "default location", "2024.01.01 17:00", "2024.01.01 20:00"}
-	tb := ConvertToBackend(t)
-	TaskList["user_11111"] = &tb
-}
-
 type Task struct {
 	Id          int       `orm:"column(id)"`
 	Task_code   string    `orm:"column(task_code)"`
@@ -36,6 +25,7 @@ type FTask struct {
 	Title       string
 	Description string
 	Location    string
+	Repeatable  string
 	StartDate   string
 	EndDate     string
 }
@@ -45,7 +35,6 @@ func AddTask(t FTask) (string, error) {
 
 	t.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	tb := ConvertToBackend(t)
-	TaskList[t.Task_code] = &tb
 	_, insertErr := o.Insert(&tb)
 	if insertErr != nil {
 		return "", errors.New("failed to insert task to database")
