@@ -15,8 +15,9 @@ type Task struct {
 	Title       string    `orm:"column(title)"`
 	Description string    `orm:"column(description); null"`
 	Location    string    `orm:"column(location)"`
-	StartDate   time.Time `json:"StartDate" orm:"type(datetime)"`
-	EndDate     time.Time `json:"EndDate" orm:"type(datetime)"`
+	Repeatable  bool      `orm:"column(repeatable)"`
+	StartDate   time.Time `json:"StartDate" orm:"auto_now_add ;type(datetime)"`
+	EndDate     time.Time `json:"EndDate" orm:"auto_now; type(datetime)"`
 }
 
 type FTask struct {
@@ -24,6 +25,7 @@ type FTask struct {
 	Title       string
 	Description string
 	Location    string
+	Repeatable  string
 	StartDate   string
 	EndDate     string
 }
@@ -37,6 +39,7 @@ func AddTask(t *FTask) (string, error) {
 		return "", err
 	}
 	_, insertErr := o.Insert(tb)
+
 	if insertErr != nil {
 		return "", errors.New("failed to insert task to database")
 	}
