@@ -30,12 +30,16 @@ type FTask struct {
 	EndDate     string
 }
 
-func AddTask(t FTask) (string, error) {
+func AddTask(t *FTask) (string, error) {
 	o := orm.NewOrm()
 
 	t.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-	tb := ConvertToBackend(t)
-	_, insertErr := o.Insert(&tb)
+	tb, err := ConvertToBackend(t)
+	if err != nil {
+		return "", err
+	}
+	_, insertErr := o.Insert(tb)
+
 	if insertErr != nil {
 		return "", errors.New("failed to insert task to database")
 	}
@@ -57,11 +61,11 @@ func GetTask(tid string) (*Task, error) {
 	return t, nil
 }
 
-func GetAllTasks() ([]FTask, error) {
+func GetAllTasks() ([]*FTask, error) {
 	// New ORM object
 	o := orm.NewOrm()
 
-	var t []Task
+	var t []*Task
 
 	count, e := o.QueryTable(new(Task)).All(&t)
 	if e != nil {
@@ -72,7 +76,7 @@ func GetAllTasks() ([]FTask, error) {
 		return nil, errors.New("nothing found")
 	}
 
-	var tf []FTask
+	var tf []*FTask
 	for _, v := range t {
 		tf = append(tf, ConvertToFrontend(v))
 	}
@@ -82,9 +86,12 @@ func GetAllTasks() ([]FTask, error) {
 func UpdateTask(tid string, tt *FTask) (a *FTask, err error) {
 	o := orm.NewOrm()
 
-	changeTask := ConvertToBackend(*tt)
-	var updTask Task
-	err = o.QueryTable("task").Filter("task_code", tid).One(&updTask)
+	changeTask, convertErr := ConvertToBackend(tt)
+	if convertErr != nil {
+		return nil, convertErr
+	}
+	updTask := new(Task)
+	err = o.QueryTable("task").Filter("task_code", tid).One(updTask)
 	if err == orm.ErrNoRows {
 		return nil, fmt.Errorf("item with ID %v not found", tid)
 	} else if err != nil {
@@ -95,12 +102,12 @@ func UpdateTask(tid string, tt *FTask) (a *FTask, err error) {
 	updTask.StartDate = changeTask.StartDate
 	updTask.EndDate = changeTask.EndDate
 	updTask.Location = changeTask.Location
-	_, err = o.Update(&updTask)
+	_, err = o.Update(updTask)
 	if err != nil {
 		return nil, err
 	}
 	res := ConvertToFrontend(updTask)
-	return &res, nil
+	return res, nil
 }
 
 func DeleteTask(tid string) (bool, error) {
@@ -120,28 +127,28 @@ func DeleteTask(tid string) (bool, error) {
 
 const customLayout = "2006.01.02 15:04"
 
-func ConvertToBackend(t FTask) Task {
-	var res Task
+func ConvertToBackend(t *FTask) (*Task, error) {
+	res := new(Task)
 	startDate, err := time.ParseInLocation(time.RFC3339Nano, t.StartDate, time.Local)
 	if err != nil {
-		errors.New("Error parsing StartDate")
+		return nil, errors.New("error parsing start_date")
 	}
 	res.StartDate = startDate
 
 	endDate, err := time.ParseInLocation(time.RFC3339Nano, t.EndDate, time.Local)
 	if err != nil {
-		errors.New("Error parsing EndDate")
+		return nil, errors.New("error parsing end_date")
 	}
 	res.EndDate = endDate
 	res.Title = t.Title
 	res.Description = t.Description
 	res.Task_code = t.Task_code
 	res.Location = t.Location
-	return res
+	return res, nil
 }
 
-func ConvertToFrontend(t Task) FTask {
-	var res FTask
+func ConvertToFrontend(t *Task) *FTask {
+	res := new(FTask)
 	startDate := t.StartDate.Format(customLayout)
 	endDate := t.EndDate.Format(customLayout)
 	res.Title = t.Title
