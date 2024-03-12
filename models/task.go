@@ -15,9 +15,9 @@ type Task struct {
 	Title       string    `orm:"column(title)"`
 	Description string    `orm:"column(description); null"`
 	Location    string    `orm:"column(location)"`
-	Repeatable  bool      `orm:"column(repeatable)"`
-	StartDate   time.Time `json:"StartDate" orm:"auto_now_add ;type(datetime)"`
-	EndDate     time.Time `json:"EndDate" orm:"auto_now; type(datetime)"`
+	Repeatable  string    `orm:"column(repeatable); default(false)"`
+	StartDate   time.Time `json:"StartDate" orm:"type(datetime)"`
+	EndDate     time.Time `json:"EndDate" orm:"type(datetime)"`
 }
 
 type FTask struct {
@@ -98,6 +98,7 @@ func UpdateTask(tid string, tt *FTask) (a *FTask, err error) {
 		return nil, err
 	}
 	updTask.Title = changeTask.Title
+	updTask.Repeatable = changeTask.Repeatable
 	updTask.Description = changeTask.Description
 	updTask.StartDate = changeTask.StartDate
 	updTask.EndDate = changeTask.EndDate
@@ -141,6 +142,7 @@ func ConvertToBackend(t *FTask) (*Task, error) {
 	}
 	res.EndDate = endDate
 	res.Title = t.Title
+	res.Repeatable = t.Repeatable
 	res.Description = t.Description
 	res.Task_code = t.Task_code
 	res.Location = t.Location
@@ -152,6 +154,7 @@ func ConvertToFrontend(t *Task) *FTask {
 	startDate := t.StartDate.Format(customLayout)
 	endDate := t.EndDate.Format(customLayout)
 	res.Title = t.Title
+	res.Repeatable = t.Repeatable
 	res.Description = t.Description
 	res.Task_code = t.Task_code
 	res.Location = t.Location
