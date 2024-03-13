@@ -18,9 +18,7 @@ func main() {
 	orm.Debug = true
 	conn := "rooty:WhisperingW@ves22@tcp(127.0.0.1:3306)/schedulerdb?charset=utf8&parseTime=true&loc=Local"
 	orm.RegisterDriver("mysql", orm.DRMySQL)
-	fmt.Println("1")
 	err := orm.RegisterDataBase("default", "mysql", conn)
-	fmt.Println("2")
 	if err != nil {
 		errors.New(fmt.Sprintf("connect to database failed, err: %v", err))
 		return
