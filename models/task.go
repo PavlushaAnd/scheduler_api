@@ -15,7 +15,7 @@ type Task struct {
 	Title       string    `orm:"column(title)"`
 	Description string    `orm:"column(description); null"`
 	Location    string    `orm:"column(location)"`
-	Repeatable  string    `orm:"column(repeatable); default(false)"`
+	Repeatable  string    `orm:"column(repeatable)"`
 	StartDate   time.Time `json:"StartDate" orm:"type(datetime)"`
 	EndDate     time.Time `json:"EndDate" orm:"type(datetime)"`
 }
@@ -34,7 +34,7 @@ func AddTask(t *FTask) (string, error) {
 	o := orm.NewOrm()
 
 	t.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-	tb, err := ConvertToBackend(t)
+	tb, err := ConvertTaskToBackend(t)
 	if err != nil {
 		return "", err
 	}
@@ -78,7 +78,7 @@ func GetAllTasks() ([]*FTask, error) {
 
 	var tf []*FTask
 	for _, v := range t {
-		tf = append(tf, ConvertToFrontend(v))
+		tf = append(tf, ConvertTaskToFrontend(v))
 	}
 	return tf, nil
 }
@@ -86,7 +86,7 @@ func GetAllTasks() ([]*FTask, error) {
 func UpdateTask(tid string, tt *FTask) (a *FTask, err error) {
 	o := orm.NewOrm()
 
-	changeTask, convertErr := ConvertToBackend(tt)
+	changeTask, convertErr := ConvertTaskToBackend(tt)
 	if convertErr != nil {
 		return nil, convertErr
 	}
@@ -107,7 +107,7 @@ func UpdateTask(tid string, tt *FTask) (a *FTask, err error) {
 	if err != nil {
 		return nil, err
 	}
-	res := ConvertToFrontend(updTask)
+	res := ConvertTaskToFrontend(updTask)
 	return res, nil
 }
 
@@ -128,7 +128,7 @@ func DeleteTask(tid string) (bool, error) {
 
 const customLayout = "2006.01.02 15:04"
 
-func ConvertToBackend(t *FTask) (*Task, error) {
+func ConvertTaskToBackend(t *FTask) (*Task, error) {
 	res := new(Task)
 	startDate, err := time.ParseInLocation(time.RFC3339Nano, t.StartDate, time.Local)
 	if err != nil {
@@ -149,7 +149,7 @@ func ConvertToBackend(t *FTask) (*Task, error) {
 	return res, nil
 }
 
-func ConvertToFrontend(t *Task) *FTask {
+func ConvertTaskToFrontend(t *Task) *FTask {
 	res := new(FTask)
 	startDate := t.StartDate.Format(customLayout)
 	endDate := t.EndDate.Format(customLayout)

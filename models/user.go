@@ -2,35 +2,35 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
-)
 
-var (
-	UserList map[string]*User
+	"github.com/beego/beego/v2/client/orm"
 )
-
-func init() {
-	UserList = make(map[string]*User)
-	//u := User{"user_11111", "astaxie", "11111", Profile{"male", 20, "Singapore", "astaxie@gmail.com"}}
-	//UserList["user_11111"] = &u
-}
 
 type User struct {
-	Id       int `orm:"column(id)"`
-	UserCode string
+	Id       int    `orm:"column(id)"`
+	UserCode string `orm:"column(user_code)"`
 	Username string `orm:"column(user_name)"`
 	Password string `orm:"column(password)"`
-	Task     *Task  `orm:"rel(fk)"`
 }
 
-func AddUser(u User) string {
+func AddUser(u *User) (string, error) {
+	o := orm.NewOrm()
+
 	u.UserCode = "user_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-	UserList[u.UserCode] = &u
-	return u.UserCode
+
+	_, insertErr := o.Insert(u)
+
+	if insertErr != nil {
+		return "", errors.New("failed to insert user to database")
+	}
+
+	return u.UserCode, nil
 }
 
-func GetUser(uid string) (u *User, err error) {
+/* func GetUser(uid string) (u *User, err error) {
 	if u, ok := UserList[uid]; ok {
 		return u, nil
 	}
@@ -39,7 +39,7 @@ func GetUser(uid string) (u *User, err error) {
 
 func GetAllUsers() map[string]*User {
 	return UserList
-}
+} */
 
 /*
 	 func UpdateUser(uid string, uu *User) (a *User, err error) {
@@ -67,15 +67,20 @@ func GetAllUsers() map[string]*User {
 		return nil, errors.New("User Not Exist")
 	}
 */
-func Login(username, password string) bool {
-	for _, u := range UserList {
-		if u.Username == username && u.Password == password {
-			return true
+func Login(username, password string) (bool, error) {
+	o := orm.NewOrm()
+
+	q := o.QueryTable("user").Filter("user_name", username)
+	if q.Exist() {
+		if q.Filter("password", password).Exist() {
+			return true, nil
 		}
+		return false, fmt.Errorf("wrong password")
+	} else {
+		return false, fmt.Errorf("user %v not found", username)
 	}
-	return false
 }
 
-func DeleteUser(uid string) {
+/* func DeleteUser(uid string) {
 	delete(UserList, uid)
-}
+} */
