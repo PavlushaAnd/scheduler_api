@@ -22,13 +22,8 @@ type TaskController struct {
 func (t *TaskController) Post() {
 	var task *models.FTask
 	json.Unmarshal(t.Ctx.Input.RequestBody, &task)
-	_, addErr := models.AddTask(task)
-	if addErr != nil {
-		t.Data["json"] = addErr.Error()
-	} else {
-		t.Data["json"] = "success post!"
-	}
-
+	t_code, _ := models.AddTask(task)
+	t.Data["json"] = map[string]string{"task_code": t_code}
 	t.ServeJSON()
 }
 
