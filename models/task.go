@@ -226,6 +226,18 @@ func Recurrence(t *Task) (recTaskList []*Task, recError error) {
 			recTaskList = append(recTaskList, &task)
 		}
 		return
+	case "FREQ=YEARLY":
+		for i := 0; t.StartDate.AddDate(i, i, 0).Before(t.RecEndDate); i++ {
+			recStartDate = t.StartDate.AddDate(i, 0, 0)
+			recEndDate = t.EndDate.AddDate(i, 0, 0)
+
+			task := *t
+			task.StartDate = recStartDate
+			task.EndDate = recEndDate
+			task.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano()+int64(i), 10)
+			recTaskList = append(recTaskList, &task)
+		}
+		return
 	default:
 		return nil, errors.New("wrong recurrence format")
 	}
