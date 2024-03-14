@@ -18,6 +18,7 @@ type Task struct {
 	Repeatable  string    `orm:"column(repeatable)"`
 	StartDate   time.Time `json:"StartDate" orm:"type(datetime)"`
 	EndDate     time.Time `json:"EndDate" orm:"type(datetime)"`
+	RecEndDate  time.Time `json:"RecEndDate" orm:"type(datetime)"`
 }
 
 type FTask struct {
@@ -28,23 +29,36 @@ type FTask struct {
 	Repeatable  string
 	StartDate   string
 	EndDate     string
+	RecEndDate  string
 }
 
-func AddTask(t *FTask) (string, error) {
+func AddTask(t *FTask) ([]string, error) {
 	o := orm.NewOrm()
 
 	t.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	tb, err := ConvertTaskToBackend(t)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	_, insertErr := o.Insert(tb)
+	if t.Repeatable != "" {
+		rt, recErr := Recurrence(tb)
+		if recErr != nil {
+			return nil, recErr
+		}
+		for i := range rt {
+			_, insertErr := o.Insert(rt[i])
+			if insertErr != nil {
+				return nil, errors.New("failed to insert task to database")
+			}
+		}
+	} else {
+		_, insertErr := o.Insert(tb)
+		if insertErr != nil {
+			return nil, errors.New("failed to insert task to database")
+		}
 
-	if insertErr != nil {
-		return "", errors.New("failed to insert task to database")
 	}
-
-	return t.Task_code, nil
+	return []string{t.Task_code}, nil
 }
 
 func GetTask(tid string) (*Task, error) {
@@ -130,17 +144,23 @@ const customLayout = "2006.01.02 15:04"
 
 func ConvertTaskToBackend(t *FTask) (*Task, error) {
 	res := new(Task)
-	startDate, err := time.ParseInLocation(time.RFC3339Nano, t.StartDate, time.Local)
+	startDate, err := time.ParseInLocation(time.RFC3339Nano, t.StartDate, time.UTC)
 	if err != nil {
 		return nil, errors.New("error parsing start_date")
 	}
 	res.StartDate = startDate
 
-	endDate, err := time.ParseInLocation(time.RFC3339Nano, t.EndDate, time.Local)
+	endDate, err := time.ParseInLocation(time.RFC3339Nano, t.EndDate, time.UTC)
 	if err != nil {
 		return nil, errors.New("error parsing end_date")
 	}
 	res.EndDate = endDate
+
+	recEndDate, err := time.ParseInLocation(time.RFC3339Nano, t.RecEndDate, time.UTC)
+	if err != nil {
+		return nil, errors.New("error parsing rec_end_date")
+	}
+	res.RecEndDate = recEndDate
 	res.Title = t.Title
 	res.Repeatable = t.Repeatable
 	res.Description = t.Description
@@ -153,6 +173,8 @@ func ConvertTaskToFrontend(t *Task) *FTask {
 	res := new(FTask)
 	startDate := t.StartDate.Format(customLayout)
 	endDate := t.EndDate.Format(customLayout)
+	recEndDate := t.RecEndDate.Format(customLayout)
+	res.RecEndDate = recEndDate
 	res.Title = t.Title
 	res.Repeatable = t.Repeatable
 	res.Description = t.Description
@@ -161,4 +183,62 @@ func ConvertTaskToFrontend(t *Task) *FTask {
 	res.EndDate = endDate
 	res.StartDate = startDate
 	return res
+}
+
+func Recurrence(t *Task) (recTaskList []*Task, recError error) {
+	var (
+		recStartDate, recEndDate time.Time
+	)
+	switch t.Repeatable {
+	case "FREQ=DAILY":
+		for i := 0; t.StartDate.AddDate(0, 0, i).Before(t.RecEndDate); i++ {
+			recStartDate = t.StartDate.AddDate(0, 0, i)
+			recEndDate = t.EndDate.AddDate(0, 0, i)
+
+			task := *t
+			task.StartDate = recStartDate
+			task.EndDate = recEndDate
+			task.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano()+int64(i), 10)
+			recTaskList = append(recTaskList, &task)
+		}
+		return
+	case "FREQ=WEEKLY":
+		for i := 0; t.StartDate.AddDate(0, 0, 7*i).Before(t.RecEndDate); i++ {
+			recStartDate = t.StartDate.AddDate(0, 0, 7*i)
+			recEndDate = t.EndDate.AddDate(0, 0, 7*i)
+
+			task := *t
+			task.StartDate = recStartDate
+			task.EndDate = recEndDate
+			task.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano()+int64(i), 10)
+			recTaskList = append(recTaskList, &task)
+		}
+		return
+	case "FREQ=MONTHLY":
+		for i := 0; t.StartDate.AddDate(0, i, 0).Before(t.RecEndDate); i++ {
+			recStartDate = t.StartDate.AddDate(0, i, 0)
+			recEndDate = t.EndDate.AddDate(0, i, 0)
+
+			task := *t
+			task.StartDate = recStartDate
+			task.EndDate = recEndDate
+			task.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano()+int64(i), 10)
+			recTaskList = append(recTaskList, &task)
+		}
+		return
+	case "FREQ=YEARLY":
+		for i := 0; t.StartDate.AddDate(i, i, 0).Before(t.RecEndDate); i++ {
+			recStartDate = t.StartDate.AddDate(i, 0, 0)
+			recEndDate = t.EndDate.AddDate(i, 0, 0)
+
+			task := *t
+			task.StartDate = recStartDate
+			task.EndDate = recEndDate
+			task.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano()+int64(i), 10)
+			recTaskList = append(recTaskList, &task)
+		}
+		return
+	default:
+		return nil, errors.New("wrong recurrence format")
+	}
 }
