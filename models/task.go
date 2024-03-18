@@ -10,26 +10,28 @@ import (
 )
 
 type Task struct {
-	Id          int       `orm:"column(id)"`
-	Task_code   string    `orm:"column(task_code)"`
-	Title       string    `orm:"column(title)"`
-	Description string    `orm:"column(description); null"`
-	Location    string    `orm:"column(location)"`
-	Repeatable  string    `orm:"column(repeatable)"`
-	StartDate   time.Time `json:"StartDate" orm:"type(datetime)"`
-	EndDate     time.Time `json:"EndDate" orm:"type(datetime)"`
-	RecEndDate  time.Time `json:"RecEndDate" orm:"type(datetime)"`
+	Id           int       `orm:"column(id)"`
+	Task_code    string    `orm:"column(task_code)"`
+	Title        string    `orm:"column(title)"`
+	Description  string    `orm:"column(description); null"`
+	Location     string    `orm:"column(location)"`
+	Repeatable   string    `orm:"column(repeatable)"`
+	StartDate    time.Time `orm:"type(datetime)"`
+	EndDate      time.Time `orm:"type(datetime)"`
+	RecEndDate   time.Time `orm:"type(datetime); nul"`
+	RecStartDate time.Time `orm:"type(datetime); nul"`
 }
 
 type FTask struct {
-	Task_code   string
-	Title       string
-	Description string
-	Location    string
-	Repeatable  string
-	StartDate   string
-	EndDate     string
-	RecEndDate  string
+	Task_code    string
+	Title        string
+	Description  string
+	Location     string
+	Repeatable   string
+	StartDate    string
+	EndDate      string
+	RecEndDate   string
+	RecStartDate string
 }
 
 func AddTask(t *FTask) ([]string, error) {
@@ -41,7 +43,7 @@ func AddTask(t *FTask) ([]string, error) {
 		return nil, err
 	}
 	if t.Repeatable != "" {
-		rt, recErr := Recurrence(tb)
+		rt, recErr := CreateRecurrence(tb)
 		if recErr != nil {
 			return nil, recErr
 		}
@@ -97,7 +99,7 @@ func GetAllTasks() ([]*FTask, error) {
 	return tf, nil
 }
 
-func UpdateTask(tid string, tt *FTask) (a *FTask, err error) {
+func UpdateTask(tid string, tt *FTask) (res *FTask, err error) {
 	o := orm.NewOrm()
 
 	changeTask, convertErr := ConvertTaskToBackend(tt)
@@ -112,16 +114,47 @@ func UpdateTask(tid string, tt *FTask) (a *FTask, err error) {
 		return nil, err
 	}
 	updTask.Title = changeTask.Title
-	updTask.Repeatable = changeTask.Repeatable
 	updTask.Description = changeTask.Description
 	updTask.StartDate = changeTask.StartDate
 	updTask.EndDate = changeTask.EndDate
 	updTask.Location = changeTask.Location
+	updTask.Repeatable = changeTask.Repeatable
 	_, err = o.Update(updTask)
 	if err != nil {
 		return nil, err
 	}
-	res := ConvertTaskToFrontend(updTask)
+	res = ConvertTaskToFrontend(updTask)
+	return res, nil
+}
+
+func CascadeUpdateRecurrentTask(tid string, tt *FTask) (res *FTask, err error) {
+	o := orm.NewOrm()
+
+	changeTask, convertErr := ConvertTaskToBackend(tt)
+	if convertErr != nil {
+		return nil, convertErr
+	}
+	updTask := new(Task)
+	err = o.QueryTable("task").Filter("task_code", tid).One(updTask)
+	if err == orm.ErrNoRows {
+		return nil, fmt.Errorf("item with ID %v not found", tid)
+	} else if err != nil {
+		return nil, err
+	}
+	tasks := updTask.recurrentCascadeTaskCodeParser(o)
+
+	for _, v := range tasks {
+		o.QueryTable("task").Filter("task_code", v).One(updTask)
+		updTask.Title = changeTask.Title
+		updTask.Description = changeTask.Description
+		updTask.Location = changeTask.Location
+		_, err = o.Update(updTask)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	res = ConvertTaskToFrontend(updTask)
 	return res, nil
 }
 
@@ -129,15 +162,51 @@ func DeleteTask(tid string) (bool, error) {
 	o := orm.NewOrm()
 
 	i, err := o.QueryTable("task").Filter("task_code", tid).Delete()
+
 	if err != nil {
 		return false, errors.New("deletion problem")
 	}
 	if i != 0 {
-
 		return true, nil
 	}
-
 	return false, nil
+}
+
+func CascadeDeleteRecurrentTask(tid string) (bool, error) {
+	o := orm.NewOrm()
+
+	var deletedItems int64
+	delTask := new(Task)
+	err := o.QueryTable("task").Filter("task_code", tid).One(delTask)
+	if err != nil {
+		return false, errors.New("deletion problem")
+	}
+	tasks := delTask.recurrentCascadeTaskCodeParser(o)
+	for _, v := range tasks {
+		i, err := o.QueryTable("task").Filter("task_code", v).Delete()
+		deletedItems += i
+		if err != nil {
+			return false, errors.New("deletion problem")
+		}
+	}
+
+	if deletedItems != 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
+func (t Task) recurrentCascadeTaskCodeParser(o orm.Ormer) (res []string) {
+	var (
+		tasks []*Task
+	)
+	o.QueryTable("task").Filter("rec_start_date", t.RecStartDate).Filter("rec_end_date", t.RecEndDate).All(&tasks)
+	for _, v := range tasks {
+		if v.Repeatable == t.Repeatable {
+			res = append(res, v.Task_code)
+		}
+	}
+	return
 }
 
 const customLayout = "2006.01.02 15:04"
@@ -146,21 +215,25 @@ func ConvertTaskToBackend(t *FTask) (*Task, error) {
 	res := new(Task)
 	startDate, err := time.ParseInLocation(time.RFC3339Nano, t.StartDate, time.UTC)
 	if err != nil {
-		return nil, errors.New("error parsing start_date")
+		return nil, errors.New("error parsing start_date; wrong date")
 	}
 	res.StartDate = startDate
 
 	endDate, err := time.ParseInLocation(time.RFC3339Nano, t.EndDate, time.UTC)
 	if err != nil {
-		return nil, errors.New("error parsing end_date")
+		return nil, errors.New("error parsing end_date; wrong date")
 	}
 	res.EndDate = endDate
 
-	recEndDate, err := time.ParseInLocation(time.RFC3339Nano, t.RecEndDate, time.UTC)
-	if err != nil {
-		return nil, errors.New("error parsing rec_end_date")
+	if t.RecEndDate != "" {
+		recEndDate, err := time.ParseInLocation(time.RFC3339Nano, t.RecEndDate, time.UTC)
+		if err != nil {
+			return nil, errors.New("error parsing rec_end_date; wrong date")
+		}
+		res.RecEndDate = recEndDate
+		res.RecStartDate = startDate
 	}
-	res.RecEndDate = recEndDate
+
 	res.Title = t.Title
 	res.Repeatable = t.Repeatable
 	res.Description = t.Description
@@ -182,10 +255,11 @@ func ConvertTaskToFrontend(t *Task) *FTask {
 	res.Location = t.Location
 	res.EndDate = endDate
 	res.StartDate = startDate
+	res.RecStartDate = t.RecStartDate.Format(customLayout)
 	return res
 }
 
-func Recurrence(t *Task) (recTaskList []*Task, recError error) {
+func CreateRecurrence(t *Task) (recTaskList []*Task, recError error) {
 	var (
 		recStartDate, recEndDate time.Time
 	)

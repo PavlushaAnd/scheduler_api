@@ -107,3 +107,46 @@ func (t *TaskController) Delete() {
 	}
 	t.ServeJSON()
 }
+
+// @Title DeleteCascadeTask
+// @Description delete the task
+// @Param	task_code		path 	string	true		"The task_code you want to delete"
+// @Success 200 {string} delete success!
+// @Failure 403 {task_code} is empty
+// @router /taskRecDel/:task_code [delete]
+func (t *TaskController) DeleteCascade() {
+	tid := t.GetString(":task_code")
+	smth, err := models.CascadeDeleteRecurrentTask(tid)
+	if err != nil {
+		t.Data["json"] = err.Error()
+	} else {
+		if smth {
+			t.Data["json"] = fmt.Sprintf("%v delete success!", tid)
+		} else {
+			t.Data["json"] = fmt.Sprintf("%v is empty", tid)
+		}
+	}
+	t.ServeJSON()
+}
+
+// @Title UpdateRecurrentTask
+// @Description update the task
+// @Param	task_code		path 	string	true		"The task_code you want to update"
+// @Param	body		body 	models.Task	true		"body for task content"
+// @Success 200 {object} models.Task
+// @Failure 403 :task_code is wrong format
+// @router /taskRecUpd/:task_code [post]
+func (t *TaskController) PutCascade() {
+	tid := t.GetString(":task_code")
+	if tid != "" {
+		var task models.FTask
+		json.Unmarshal(t.Ctx.Input.RequestBody, &task)
+		tt, err := models.CascadeUpdateRecurrentTask(tid, &task)
+		if err != nil {
+			t.Data["json"] = err.Error()
+		} else {
+			t.Data["json"] = tt
+		}
+	}
+	t.ServeJSON()
+}
