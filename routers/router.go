@@ -24,6 +24,8 @@ func init() {
 		beego.NSRouter("/task/taskDel/:task_code", &controllers.TaskController{}, "delete:Delete"),
 		beego.NSRouter("/user/login", &controllers.UserController{}, "get:Login"),
 		beego.NSRouter("/user/logout", &controllers.UserController{}, "get:Logout"),
+		beego.NSRouter("/task/taskRecUpd/:task_code", &controllers.TaskController{}, "post:PutCascade"),
+		beego.NSRouter("/task/taskRecDel/:task_code", &controllers.TaskController{}, "delete:DeleteCascade"),
 		beego.NSNamespace("/task",
 			beego.NSInclude(
 				&controllers.TaskController{},
