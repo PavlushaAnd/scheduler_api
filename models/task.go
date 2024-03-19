@@ -20,6 +20,8 @@ type Task struct {
 	EndDate      time.Time `orm:"type(datetime)"`
 	RecEndDate   time.Time `orm:"type(datetime); nul"`
 	RecStartDate time.Time `orm:"type(datetime); nul"`
+	Version      int       `orm:"version"`
+	LastModified time.Time
 }
 
 type FTask struct {
@@ -54,6 +56,7 @@ func AddTask(t *FTask) ([]string, error) {
 			}
 		}
 	} else {
+		tb.LastModified = time.Now()
 		_, insertErr := o.Insert(tb)
 		if insertErr != nil {
 			return nil, errors.New("failed to insert task to database")
@@ -119,21 +122,23 @@ func UpdateTask(tid string, tt *FTask) (res *FTask, err error) {
 	updTask.EndDate = changeTask.EndDate
 	updTask.Location = changeTask.Location
 	updTask.Repeatable = changeTask.Repeatable
-	_, err = o.Update(updTask)
-	if err != nil {
-		return nil, err
+	updTask.LastModified = time.Now()
+	if count, _ := o.QueryTable("task").Filter("task_code", tid).Filter("version", updTask.Version).Count(); count != 0 {
+		_, err = o.Update(updTask)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		return nil, errors.New("concurrency error")
 	}
+
 	res = ConvertTaskToFrontend(updTask)
 	return res, nil
 }
 
-func CascadeUpdateRecurrentTask(tid string, tt *FTask) (res *FTask, err error) {
+func CascadeUpdateRecurrentTask(tid string, changeTask *FTask) (res *FTask, err error) {
 	o := orm.NewOrm()
 
-	changeTask, convertErr := ConvertTaskToBackend(tt)
-	if convertErr != nil {
-		return nil, convertErr
-	}
 	updTask := new(Task)
 	err = o.QueryTable("task").Filter("task_code", tid).One(updTask)
 	if err == orm.ErrNoRows {
@@ -148,12 +153,16 @@ func CascadeUpdateRecurrentTask(tid string, tt *FTask) (res *FTask, err error) {
 		updTask.Title = changeTask.Title
 		updTask.Description = changeTask.Description
 		updTask.Location = changeTask.Location
-		_, err = o.Update(updTask)
+		if count, _ := o.QueryTable("task").Filter("task_code", updTask.Task_code).Filter("version", updTask.Version).Count(); count != 0 {
+			_, err = o.Update(updTask)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, errors.New("concurrency error")
+		}
 	}
 
-	if err != nil {
-		return nil, err
-	}
 	res = ConvertTaskToFrontend(updTask)
 	return res, nil
 }
@@ -272,10 +281,10 @@ func CreateRecurrence(t *Task) (recTaskList []*Task, recError error) {
 			task := *t
 			task.StartDate = recStartDate
 			task.EndDate = recEndDate
+			task.LastModified = time.Now()
 			task.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano()+int64(i), 10)
 			recTaskList = append(recTaskList, &task)
 		}
-		return
 	case "FREQ=WEEKLY":
 		for i := 0; t.StartDate.AddDate(0, 0, 7*i).Before(t.RecEndDate); i++ {
 			recStartDate = t.StartDate.AddDate(0, 0, 7*i)
@@ -285,9 +294,9 @@ func CreateRecurrence(t *Task) (recTaskList []*Task, recError error) {
 			task.StartDate = recStartDate
 			task.EndDate = recEndDate
 			task.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano()+int64(i), 10)
+			task.LastModified = time.Now()
 			recTaskList = append(recTaskList, &task)
 		}
-		return
 	case "FREQ=MONTHLY":
 		for i := 0; t.StartDate.AddDate(0, i, 0).Before(t.RecEndDate); i++ {
 			recStartDate = t.StartDate.AddDate(0, i, 0)
@@ -296,10 +305,10 @@ func CreateRecurrence(t *Task) (recTaskList []*Task, recError error) {
 			task := *t
 			task.StartDate = recStartDate
 			task.EndDate = recEndDate
+			task.LastModified = time.Now()
 			task.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano()+int64(i), 10)
 			recTaskList = append(recTaskList, &task)
 		}
-		return
 	case "FREQ=YEARLY":
 		for i := 0; t.StartDate.AddDate(i, i, 0).Before(t.RecEndDate); i++ {
 			recStartDate = t.StartDate.AddDate(i, 0, 0)
@@ -308,11 +317,12 @@ func CreateRecurrence(t *Task) (recTaskList []*Task, recError error) {
 			task := *t
 			task.StartDate = recStartDate
 			task.EndDate = recEndDate
+			task.LastModified = time.Now()
 			task.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano()+int64(i), 10)
 			recTaskList = append(recTaskList, &task)
 		}
-		return
 	default:
 		return nil, errors.New("wrong recurrence format")
 	}
+	return
 }
