@@ -154,6 +154,7 @@ func CascadeUpdateRecurrentTask(tid string, changeTask *FTask) (res *FTask, err 
 		updTask.Title = changeTask.Title
 		updTask.Description = changeTask.Description
 		updTask.Location = changeTask.Location
+		updTask.LastModified = time.Now()
 		if count, _ := o.QueryTable("task").Filter("task_code", updTask.Task_code).Filter("version", updTask.Version).Count(); count != 0 {
 			updTask.Version++
 			_, err = o.Update(updTask)
