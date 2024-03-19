@@ -124,6 +124,7 @@ func UpdateTask(tid string, tt *FTask) (res *FTask, err error) {
 	updTask.Repeatable = changeTask.Repeatable
 	updTask.LastModified = time.Now()
 	if count, _ := o.QueryTable("task").Filter("task_code", tid).Filter("version", updTask.Version).Count(); count != 0 {
+		updTask.Version++
 		_, err = o.Update(updTask)
 		if err != nil {
 			return nil, err
@@ -154,6 +155,7 @@ func CascadeUpdateRecurrentTask(tid string, changeTask *FTask) (res *FTask, err 
 		updTask.Description = changeTask.Description
 		updTask.Location = changeTask.Location
 		if count, _ := o.QueryTable("task").Filter("task_code", updTask.Task_code).Filter("version", updTask.Version).Count(); count != 0 {
+			updTask.Version++
 			_, err = o.Update(updTask)
 			if err != nil {
 				return nil, err
