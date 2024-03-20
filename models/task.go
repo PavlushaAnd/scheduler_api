@@ -225,25 +225,29 @@ const customLayout = "2006.01.02 15:04"
 
 func ConvertTaskToBackend(t *FTask) (*Task, error) {
 	res := new(Task)
-	startDate, err := time.ParseInLocation(time.RFC3339Nano, t.StartDate, time.UTC)
+	loc, err := time.LoadLocation("Pacific/Auckland")
+	if err != nil {
+		return nil, err
+	}
+	startDate, err := time.Parse(time.RFC3339Nano, t.StartDate)
 	if err != nil {
 		return nil, errors.New("error parsing start_date; wrong date")
 	}
-	res.StartDate = startDate
+	res.StartDate = startDate.In(loc)
 
-	endDate, err := time.ParseInLocation(time.RFC3339Nano, t.EndDate, time.UTC)
+	endDate, err := time.Parse(time.RFC3339Nano, t.EndDate)
 	if err != nil {
 		return nil, errors.New("error parsing end_date; wrong date")
 	}
-	res.EndDate = endDate
+	res.EndDate = endDate.In(loc)
 
 	if t.RecEndDate != "" {
-		recEndDate, err := time.ParseInLocation(time.RFC3339Nano, t.RecEndDate, time.UTC)
+		recEndDate, err := time.Parse(time.RFC3339Nano, t.RecEndDate)
 		if err != nil {
 			return nil, errors.New("error parsing rec_end_date; wrong date")
 		}
-		res.RecEndDate = recEndDate
-		res.RecStartDate = startDate
+		res.RecEndDate = recEndDate.In(loc)
+		res.RecStartDate = startDate.In(loc)
 	}
 
 	res.Title = t.Title
