@@ -5,6 +5,8 @@ import (
 	"scheduler_api/models"
 	_ "scheduler_api/routers"
 
+	_ "time/tzdata"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/pkg/errors"
 
@@ -16,7 +18,7 @@ import (
 func main() {
 	//DB connection
 	orm.Debug = true
-	//conn := "root:WhisperingW@ves22@tcp(127.0.0.1:3306)/schedulerdbdev?charset=utf8&parseTime=true&loc=Local"
+	//conn := "root:WhisperingW@ves22@tcp(127.0.0.1:3306)/schedulerdemo?charset=utf8&parseTime=true&loc=Local"
 	conn := "rooty:WhisperingW@ves22@tcp(192.168.69.52:3306)/schedulerdb?charset=utf8&parseTime=true&loc=Local"
 	orm.RegisterDriver("mysql", orm.DRMySQL)
 	err := orm.RegisterDataBase("default", "mysql", conn)
