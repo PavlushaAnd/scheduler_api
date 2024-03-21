@@ -14,10 +14,10 @@ type TaskController struct {
 }
 
 // @Title CreateTask
-// @Description create users
-// @Param	body		body 	models.Task	true		"body for user content"
-// @Success 200 {int} models.Task.Task_code
-// @Failure 403 body is empty
+// @Description create single/recurrent Task
+// @Param	body		body 	models.FTask	true		"body for user content"
+// @Success 200  success post!
+// @Failure 403 error message
 // @router / [post]
 func (t *TaskController) Post() {
 	var task *models.FTask
@@ -34,7 +34,7 @@ func (t *TaskController) Post() {
 
 // @Title GetAllTasks
 // @Description get all Tasks
-// @Success 200 {object} models.Task
+// @Success 200 {object} models.FTask
 // @router / [get]
 func (t *TaskController) GetAll() {
 	tasks, err := models.GetAllTasks()
@@ -48,9 +48,9 @@ func (t *TaskController) GetAll() {
 
 // @Title GetTask
 // @Description get task by task_code
-// @Param	task_code		path 	string	true		"The key for staticblock"
-// @Success 200 {object} models.Task
-// @Failure 403 :task_code is empty
+// @Param	task_code		path 	string	true		"The key for Task"
+// @Success 200 {object} models.FTask
+// @Failure 403 {task_code} is empty
 // @router /:task_code [get]
 func (t *TaskController) Get() {
 	tid := t.GetString(":task_code")
@@ -68,9 +68,9 @@ func (t *TaskController) Get() {
 // @Title UpdateTask
 // @Description update the task
 // @Param	task_code		path 	string	true		"The task_code you want to update"
-// @Param	body		body 	models.Task	true		"body for task content"
-// @Success 200 {object} models.Task
-// @Failure 403 :task_code is wrong format
+// @Param	body		body 	models.FTask	true		"body for task content"
+// @Success 200 {object} models.FTask
+// @Failure 403 error message
 // @router /taskUpd/:task_code [post]
 func (t *TaskController) Put() {
 	tid := t.GetString(":task_code")
@@ -90,7 +90,7 @@ func (t *TaskController) Put() {
 // @Title DeleteTask
 // @Description delete the task
 // @Param	task_code		path 	string	true		"The task_code you want to delete"
-// @Success 200 {string} delete success!
+// @Success 200 {task_code} delete success!
 // @Failure 403 {task_code} is empty
 // @router /taskDel/:task_code [delete]
 func (t *TaskController) Delete() {
@@ -109,9 +109,9 @@ func (t *TaskController) Delete() {
 }
 
 // @Title DeleteCascadeTask
-// @Description delete the task
+// @Description delete recurrence by Task
 // @Param	task_code		path 	string	true		"The task_code you want to delete"
-// @Success 200 {string} delete success!
+// @Success 200 {task_code} delete success!
 // @Failure 403 {task_code} is empty
 // @router /taskRecDel/:task_code [delete]
 func (t *TaskController) DeleteCascade() {
@@ -129,12 +129,12 @@ func (t *TaskController) DeleteCascade() {
 	t.ServeJSON()
 }
 
-// @Title UpdateRecurrentTask
-// @Description update the task
+// @Title UpdateCascadeTask
+// @Description update recurrence by Tasks (can receive FTask but will update only Title, Description and Location)
 // @Param	task_code		path 	string	true		"The task_code you want to update"
-// @Param	body		body 	models.Task	true		"body for task content"
-// @Success 200 {object} models.Task
-// @Failure 403 :task_code is wrong format
+// @Param	body		body 	models.FTask	true		"body for task content"
+// @Success 200 {object} models.FTask
+// @Failure 403 error message
 // @router /taskRecUpd/:task_code [post]
 func (t *TaskController) PutCascade() {
 	tid := t.GetString(":task_code")
