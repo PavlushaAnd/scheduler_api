@@ -135,7 +135,7 @@ func (t *TaskController) DeleteCascade() {
 // @Param	body		body 	models.FTask	true		"body for task content"
 // @Success 200 {object} models.FTask
 // @Failure 403 error message
-// @router /taskUpd/:task_code [post]
+// @router /taskRecUpd/:task_code [post]
 func (t *TaskController) PutCascade() {
 	tid := t.GetString(":task_code")
 	if tid != "" {
