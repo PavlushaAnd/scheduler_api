@@ -141,6 +141,7 @@ func UpdateTask(tid string, tt *FTask) (res *FTask, err error) {
 		if err != nil {
 			return nil, err
 		}
+		//creating recurrent tasks and deleting entry duplicate
 		if (changeTask.Repeatable != "") && (!changeTask.RecEndDate.IsZero()) {
 			tid, _ := AddTask(tt)
 			DeleteTask(tid)
