@@ -7,7 +7,7 @@ import (
 	beego "github.com/beego/beego/v2/server/web"
 )
 
-// Operations about Users(unavailable)
+// Operations about Users(temporary)
 type UserController struct {
 	beego.Controller
 }

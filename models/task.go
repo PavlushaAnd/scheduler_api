@@ -18,8 +18,8 @@ type Task struct {
 	Repeatable   string    `orm:"column(repeatable)"`
 	StartDate    time.Time `orm:"type(datetime)"`
 	EndDate      time.Time `orm:"type(datetime)"`
-	RecEndDate   time.Time `orm:"type(datetime); nul"`
-	RecStartDate time.Time `orm:"type(datetime); nul"`
+	RecEndDate   time.Time `orm:"type(datetime); null"`
+	RecStartDate time.Time `orm:"type(datetime); null"`
 	Version      int       `orm:"version"`
 	LastModified time.Time
 }
@@ -36,34 +36,34 @@ type FTask struct {
 	RecStartDate string
 }
 
-func AddTask(t *FTask) ([]string, error) {
+func AddTask(t *FTask) (string, error) {
 	o := orm.NewOrm()
 
 	t.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	tb, err := ConvertTaskToBackend(t)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	if t.Repeatable != "" {
 		rt, recErr := CreateRecurrence(tb)
 		if recErr != nil {
-			return nil, recErr
+			return "", recErr
 		}
 		for i := range rt {
 			_, insertErr := o.Insert(rt[i])
 			if insertErr != nil {
-				return nil, errors.New("failed to insert task to database")
+				return "", insertErr
 			}
 		}
 	} else {
 		tb.LastModified = time.Now()
 		_, insertErr := o.Insert(tb)
 		if insertErr != nil {
-			return nil, errors.New("failed to insert task to database")
+			return "", insertErr
 		}
 
 	}
-	return []string{t.Task_code}, nil
+	return t.Task_code, nil
 }
 
 func GetTask(tid string) (*Task, error) {
@@ -121,16 +121,26 @@ func UpdateTask(tid string, tt *FTask) (res *FTask, err error) {
 	updTask.StartDate = changeTask.StartDate
 	updTask.EndDate = changeTask.EndDate
 	updTask.Location = changeTask.Location
-	updTask.Repeatable = changeTask.Repeatable
 	updTask.LastModified = time.Now()
+	if (changeTask.Repeatable != "") && (!changeTask.RecEndDate.IsZero()) {
+		updTask.Repeatable = changeTask.Repeatable
+		updTask.RecEndDate = changeTask.RecEndDate
+		updTask.RecStartDate = changeTask.StartDate
+	}
 	if count, _ := o.QueryTable("task").Filter("task_code", tid).Filter("version", updTask.Version).Count(); count != 0 {
 		updTask.Version++
+
 		_, err = o.Update(updTask)
 		if err != nil {
 			return nil, err
 		}
+		if (changeTask.Repeatable != "") && (!changeTask.RecEndDate.IsZero()) {
+			AddTask(tt)
+		}
+
 	} else {
 		return nil, errors.New("concurrency error")
+
 	}
 
 	res = ConvertTaskToFrontend(updTask)
@@ -214,7 +224,7 @@ func (t Task) recurrentCascadeTaskCodeParser(o orm.Ormer) (res []string) {
 	)
 	o.QueryTable("task").Filter("rec_start_date", t.RecStartDate).Filter("rec_end_date", t.RecEndDate).All(&tasks)
 	for _, v := range tasks {
-		if v.Repeatable == t.Repeatable {
+		if (v.Repeatable == t.Repeatable) && (v.Title == t.Title) {
 			res = append(res, v.Task_code)
 		}
 	}
@@ -281,7 +291,7 @@ func CreateRecurrence(t *Task) (recTaskList []*Task, recError error) {
 	)
 	switch t.Repeatable {
 	case "FREQ=DAILY":
-		for i := 0; t.StartDate.AddDate(0, 0, i).Before(t.RecEndDate); i++ {
+		for i := 1; t.StartDate.AddDate(0, 0, i).Before(t.RecEndDate); i++ {
 			recStartDate = t.StartDate.AddDate(0, 0, i)
 			recEndDate = t.EndDate.AddDate(0, 0, i)
 
@@ -293,7 +303,7 @@ func CreateRecurrence(t *Task) (recTaskList []*Task, recError error) {
 			recTaskList = append(recTaskList, &task)
 		}
 	case "FREQ=WEEKLY":
-		for i := 0; t.StartDate.AddDate(0, 0, 7*i).Before(t.RecEndDate); i++ {
+		for i := 1; t.StartDate.AddDate(0, 0, 7*i).Before(t.RecEndDate); i++ {
 			recStartDate = t.StartDate.AddDate(0, 0, 7*i)
 			recEndDate = t.EndDate.AddDate(0, 0, 7*i)
 
@@ -305,7 +315,7 @@ func CreateRecurrence(t *Task) (recTaskList []*Task, recError error) {
 			recTaskList = append(recTaskList, &task)
 		}
 	case "FREQ=MONTHLY":
-		for i := 0; t.StartDate.AddDate(0, i, 0).Before(t.RecEndDate); i++ {
+		for i := 1; t.StartDate.AddDate(0, i, 0).Before(t.RecEndDate); i++ {
 			recStartDate = t.StartDate.AddDate(0, i, 0)
 			recEndDate = t.EndDate.AddDate(0, i, 0)
 
@@ -317,7 +327,7 @@ func CreateRecurrence(t *Task) (recTaskList []*Task, recError error) {
 			recTaskList = append(recTaskList, &task)
 		}
 	case "FREQ=YEARLY":
-		for i := 0; t.StartDate.AddDate(i, i, 0).Before(t.RecEndDate); i++ {
+		for i := 1; t.StartDate.AddDate(i, i, 0).Before(t.RecEndDate); i++ {
 			recStartDate = t.StartDate.AddDate(i, 0, 0)
 			recEndDate = t.EndDate.AddDate(i, 0, 0)
 
