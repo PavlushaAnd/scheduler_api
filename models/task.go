@@ -336,7 +336,7 @@ func CreateRecurrence(t *Task) (recTaskList []*Task, recError error) {
 			recTaskList = append(recTaskList, &task)
 		}
 	case "FREQ=YEARLY":
-		for i := 0; t.StartDate.AddDate(i, i, 0).Before(t.RecEndDate); i++ {
+		for i := 0; t.StartDate.AddDate(i, 0, 0).Before(t.RecEndDate); i++ {
 			recStartDate = t.StartDate.AddDate(i, 0, 0)
 			recEndDate = t.EndDate.AddDate(i, 0, 0)
 
