@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/astaxie/beego"
+	beego "github.com/beego/beego/v2/server/web"
 )
 
 const (
@@ -93,7 +93,10 @@ func GetCurrentDir() string {
 }
 
 func GetUploadDir() string {
-	uploadDir := beego.AppConfig.String("UploadDir")
+	uploadDir, err := beego.AppConfig.String("UploadDir")
+	if err != nil {
+		return ""
+	}
 	if uploadDir[0] == '.' {
 		curPath := GetCurrentDir()
 		pathAfter, find := strings.CutPrefix(uploadDir, ".")

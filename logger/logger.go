@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/astaxie/beego"
+	beego "github.com/beego/beego/v2/server/web"
 )
 
 var (
@@ -46,7 +46,10 @@ func getLogFileName() string {
 	t := time.Now()
 	filename := t.Format("20060102")
 	filename += ".log"
-	path := beego.AppConfig.String("LoggerRoot")
+	path, err := beego.AppConfig.String("LoggerRoot")
+	if err != nil {
+		log.Fatal(err)
+	}
 	if path[0] == '.' {
 		curPath := utils.GetCurrentDir()
 		//fmt.Println("app current Dir: ", curPath)

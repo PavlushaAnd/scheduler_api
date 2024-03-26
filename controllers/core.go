@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"scheduler_api/core"
@@ -96,7 +97,7 @@ func (c *CoreController) Login() {
 	}
 
 	if core.TOKENCACHE != nil {
-		core.TOKENCACHE.Put(token, expireTime, time.Duration(core.TokenAutoTime)*time.Second)
+		core.TOKENCACHE.Put(context.TODO(), token, expireTime, time.Duration(core.TokenAutoTime)*time.Second)
 	}
 
 	tokenstring := fmt.Sprintf("Bearer %s", token)

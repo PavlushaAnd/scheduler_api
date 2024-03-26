@@ -1,14 +1,15 @@
 package core
 
 import (
+	"context"
 	"fmt"
 	"scheduler_api/models"
 	"scheduler_api/utils"
 	"strings"
 	"time"
 
-	"github.com/astaxie/beego"
 	"github.com/beego/beego/v2/client/orm"
+	beego "github.com/beego/beego/v2/server/web"
 )
 
 type UserDetailsWithPwd struct {
@@ -206,7 +207,7 @@ func (c *Core) ValidateUserToken(userToken string) error {
 	userCode, expiretime, err := GetUserExpireTimeFromToken(&userToken)
 	if err != nil {
 		if TOKENCACHE != nil {
-			TOKENCACHE.Delete(userToken)
+			TOKENCACHE.Delete(context.TODO(), userToken)
 		}
 		return fmt.Errorf("error on parse token - %s", err.Error())
 	}
@@ -234,7 +235,7 @@ func (c *Core) ValidateUserToken(userToken string) error {
 	}
 
 	if TOKENCACHE != nil {
-		tmp := TOKENCACHE.Get(userToken)
+		tmp, _ := TOKENCACHE.Get(context.TODO(), userToken)
 		if tmp != nil {
 			expiretime = tmp.(int64)
 		}
@@ -256,7 +257,7 @@ func (c *Core) ValidateUserToken(userToken string) error {
 
 func (c *Core) DeleteUserTokenInCache(userToken string) error {
 	if TOKENCACHE != nil {
-		TOKENCACHE.Delete(userToken)
+		TOKENCACHE.Delete(context.TODO(), userToken)
 	}
 	return nil
 }
@@ -264,7 +265,7 @@ func (c *Core) DeleteUserTokenInCache(userToken string) error {
 func (c *Core) UpdateUserTokenExpireTimeInCache(userToken string) error {
 	NewExpireTime := time.Now().Unix() + TokenAutoTime
 	if TOKENCACHE != nil {
-		TOKENCACHE.Put(userToken, NewExpireTime, time.Duration(TokenAutoTime)*time.Second)
+		TOKENCACHE.Put(context.TODO(), userToken, NewExpireTime, time.Duration(TokenAutoTime)*time.Second)
 	}
 
 	return nil

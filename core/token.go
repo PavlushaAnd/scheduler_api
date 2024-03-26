@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/cache"
+	"github.com/beego/beego/v2/client/cache"
+	beego "github.com/beego/beego/v2/server/web"
 )
 
 // ***important: key  length must be 32 24 16 bit
