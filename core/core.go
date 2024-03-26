@@ -158,6 +158,8 @@ func (c *Core) GetUserDetailsWithPwd(userCode string) (*UserDetailsWithPwd, erro
 	UserDetails.HasPostedPage = userDB.HasPostedPage
 	UserDetails.Password = userDB.Password
 	UserDetails.Role = userDB.Role
+	UserDetails.ColorBackground = userDB.ColorBackground
+	UserDetails.ColorText = userDB.ColorText
 	return &UserDetails, nil
 }
 
@@ -185,6 +187,8 @@ func (c *Core) GetUserDetails(userCode string) (*UserDetails, error) {
 	UserDetails.HasConfirmedPage = userDetailsWithPwd.HasConfirmedPage
 	UserDetails.HasPostedPage = userDetailsWithPwd.HasPostedPage
 	UserDetails.Role = userDetailsWithPwd.Role
+	UserDetails.ColorBackground = userDetailsWithPwd.ColorBackground
+	UserDetails.ColorText = userDetailsWithPwd.ColorText
 
 	return &UserDetails, nil
 }
