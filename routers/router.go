@@ -16,16 +16,21 @@ import (
 
 func init() {
 	ns := beego.NewNamespace("/v1",
+		//endpoints for task
 		beego.NSRouter("/task", &controllers.TaskController{}, "get:GetAll"),
-		/* 		beego.NSRouter("/user", &controllers.UserController{}, "post:Post"), */
 		beego.NSRouter("/task", &controllers.TaskController{}, "post:Post"),
 		beego.NSRouter("/task/:task_code", &controllers.TaskController{}, "get:Get"),
 		beego.NSRouter("/task/taskUpd/:task_code", &controllers.TaskController{}, "post:Put"),
 		beego.NSRouter("/task/taskDel/:task_code", &controllers.TaskController{}, "delete:Delete"),
-		/* 		beego.NSRouter("/user/login", &controllers.UserController{}, "get:Login"),
-		   		beego.NSRouter("/user/logout", &controllers.UserController{}, "get:Logout"), */
 		beego.NSRouter("/task/taskRecUpd/:task_code", &controllers.TaskController{}, "post:PutCascade"),
 		beego.NSRouter("/task/taskRecDel/:task_code", &controllers.TaskController{}, "delete:DeleteCascade"),
+		//endpoints for user
+		beego.NSRouter("/user/userlist", &controllers.CoreController{}, "get:GetUserList"),
+		beego.NSRouter("/user/login", &controllers.CoreController{}, "post:Login"),
+		beego.NSRouter("/user/addorupd", &controllers.CoreController{}, "post:AddOrUpdateUser"),
+		beego.NSRouter("/user/delete", &controllers.CoreController{}, "delete:Delete"),
+		beego.NSRouter("/user/updpasswd", &controllers.CoreController{}, "post:ModifyPassword"),
+		beego.NSRouter("/user/rstpasswd", &controllers.CoreController{}, "post:ResetPassword"),
 		beego.NSNamespace("/task",
 			beego.NSInclude(
 				&controllers.TaskController{},
@@ -33,7 +38,7 @@ func init() {
 		),
 		beego.NSNamespace("/user",
 			beego.NSInclude(
-			/* 				&controllers.UserController{}, */
+				&controllers.CoreController{},
 			),
 		),
 	)

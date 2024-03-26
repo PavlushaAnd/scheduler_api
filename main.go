@@ -18,8 +18,8 @@ import (
 func main() {
 	//DB connection
 	orm.Debug = true
-	conn := "root:WhisperingW@ves22@tcp(127.0.0.1:3306)/schedulerdbdev?charset=utf8&parseTime=true&loc=Local"
-	//conn := "rooty:WhisperingW@ves22@tcp(192.168.69.52:3306)/schedulerdb?charset=utf8&parseTime=true&loc=Local"
+	//conn := "root:WhisperingW@ves22@tcp(127.0.0.1:3306)/schedulerdbdev?charset=utf8&parseTime=true&loc=Local"
+	conn := "rooty:WhisperingW@ves22@tcp(192.168.69.52:3306)/schedulerdb?charset=utf8&parseTime=true&loc=Local"
 	orm.RegisterDriver("mysql", orm.DRMySQL)
 	err := orm.RegisterDataBase("default", "mysql", conn)
 	if err != nil {
@@ -27,8 +27,8 @@ func main() {
 		return
 	}
 	orm.RegisterModel(new(models.Task))
-	orm.RunSyncdb("default", true, true)
-	//orm.RunSyncdb("default", false, true)
+	//orm.RunSyncdb("default", true, true)
+	orm.RunSyncdb("default", false, true)
 	//CORS permissions
 	beego.InsertFilter("*", beego.BeforeRouter, cors.Allow(&cors.Options{
 		AllowOrigins:     []string{"*"},

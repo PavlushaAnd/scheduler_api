@@ -13,6 +13,7 @@ import (
 	"github.com/beego/beego/v2/client/orm"
 )
 
+// Operations about Users
 type CoreController struct {
 	core.Core
 }
@@ -115,7 +116,7 @@ func (c *CoreController) Login() {
 // @Param	pagesize	query	int	true	"page size"
 // @Success 200 {object} utils.JSONStruct
 // @Failure 400 Bad Request
-// @router /userlist [post]
+// @router /userlist [get]
 // @Security ApiKeyAuth
 // @SecurityDefinition BearerAuth api_key Authorization header with JWT token
 // @Param Authorization header string true "With the bearer in front"
@@ -187,7 +188,7 @@ func (c *CoreController) GetUserList() {
 // @Param	userDetail		body		core.UserDetailsWithPwd	true		"user detail"
 // @Success 200 {object} utils.JSONStruct
 // @Failure 400 Bad Request
-// @router /addorupdateuser [post]
+// @router /addorupd [post]
 // @Security ApiKeyAuth
 // @SecurityDefinition BearerAuth api_key Authorization header with JWT token
 // @Param Authorization header string false "With the bearer in front"
@@ -276,7 +277,7 @@ func (c *CoreController) AddOrUpdateUser() {
 // @Param	userCode		query		string	true		"user code"
 // @Success 200 {object} utils.JSONStruct
 // @Failure 400 Bad Request
-// @router /deleteuser [post]
+// @router /delete [delete]
 // @Security ApiKeyAuth
 // @SecurityDefinition BearerAuth api_key Authorization header with JWT token
 // @Param Authorization header string true "With the bearer in front"
@@ -327,7 +328,7 @@ func (c *CoreController) DeleteUser() {
 // @Param	ModifyPwd		body		core.ModifyPwd	true	"modify user password"
 // @Success 200 {object} utils.JSONStruct
 // @Failure 400 Bad Request
-// @router /modifypassword [post]
+// @router /updpasswd [post]
 // @Security ApiKeyAuth
 // @SecurityDefinition BearerAuth api_key Authorization header with JWT token
 // @Param Authorization header string true "With the bearer in front"
@@ -404,7 +405,7 @@ func (c *CoreController) ModifyPassword() {
 // @Param	ModifyPwd		body		core.ModifyPwd	true	"reset user password"
 // @Success 200 {object} utils.JSONStruct
 // @Failure 400 Bad Request
-// @router /resetpassword [post]
+// @router /rstpasswd [post]
 // @Security ApiKeyAuth
 // @SecurityDefinition BearerAuth api_key Authorization header with JWT token
 // @Param Authorization header string true "With the bearer in front"
