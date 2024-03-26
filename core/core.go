@@ -25,6 +25,8 @@ type UserDetailsWithPwd struct {
 	HasPostedPage     bool   `json:"has_posted_page"`
 	Password          string `json:"password"`
 	Role              string `json:"role"`
+	ColorText         string `json:"color_text"`
+	ColorBackground   string `json:"color_background"`
 }
 
 type UserDetails struct {
@@ -39,6 +41,8 @@ type UserDetails struct {
 	HasConfirmedPage  bool   `json:"has_confirmed_page"`
 	HasPostedPage     bool   `json:"has_posted_page"`
 	Role              string `json:"role"`
+	ColorText         string `json:"color_text"`
+	ColorBackground   string `json:"color_background"`
 }
 
 type ModifyPwd struct {
@@ -48,8 +52,8 @@ type ModifyPwd struct {
 }
 
 type UserPage struct {
-	ToltalUsers int           `json:"ToltalUsers" example:"1" format:"int"`
-	ToltalPages int           `json:"ToltalPages" example:"1" format:"int"`
+	TotalUsers  int           `json:"ToltalUsers" example:"1" format:"int"`
+	TotalPages  int           `json:"ToltalPages" example:"1" format:"int"`
 	CurrentPage int           `json:"CurrentPage" example:"1" format:"int"`
 	UsersInPage []UserDetails `json:"Users"`
 }

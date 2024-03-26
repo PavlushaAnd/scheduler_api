@@ -19,6 +19,8 @@ type User struct {
 	HasPostedPage     bool   `orm:"column(has_posted_page)"`
 	Password          string `orm:"column(password)"`
 	Role              string `orm:"column(role)"`
+	ColorText         string `orm:"column(color_text)"`
+	ColorBackground   string `orm:"column(color_background)"`
 }
 
 func (t *User) TableName() string {
