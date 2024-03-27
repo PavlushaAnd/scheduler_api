@@ -25,6 +25,8 @@ type UserDetailsWithPwd struct {
 	HasPostedPage     bool   `json:"has_posted_page"`
 	Password          string `json:"password"`
 	Role              string `json:"role"`
+	ColorText         string `json:"color_text"`
+	ColorBackground   string `json:"color_background"`
 }
 
 type UserDetails struct {
@@ -39,6 +41,8 @@ type UserDetails struct {
 	HasConfirmedPage  bool   `json:"has_confirmed_page"`
 	HasPostedPage     bool   `json:"has_posted_page"`
 	Role              string `json:"role"`
+	ColorText         string `json:"color_text"`
+	ColorBackground   string `json:"color_background"`
 }
 
 type ModifyPwd struct {
@@ -48,8 +52,8 @@ type ModifyPwd struct {
 }
 
 type UserPage struct {
-	ToltalUsers int           `json:"ToltalUsers" example:"1" format:"int"`
-	ToltalPages int           `json:"ToltalPages" example:"1" format:"int"`
+	TotalUsers  int           `json:"ToltalUsers" example:"1" format:"int"`
+	TotalPages  int           `json:"ToltalPages" example:"1" format:"int"`
 	CurrentPage int           `json:"CurrentPage" example:"1" format:"int"`
 	UsersInPage []UserDetails `json:"Users"`
 }
@@ -154,6 +158,8 @@ func (c *Core) GetUserDetailsWithPwd(userCode string) (*UserDetailsWithPwd, erro
 	UserDetails.HasPostedPage = userDB.HasPostedPage
 	UserDetails.Password = userDB.Password
 	UserDetails.Role = userDB.Role
+	UserDetails.ColorBackground = userDB.ColorBackground
+	UserDetails.ColorText = userDB.ColorText
 	return &UserDetails, nil
 }
 
@@ -181,6 +187,8 @@ func (c *Core) GetUserDetails(userCode string) (*UserDetails, error) {
 	UserDetails.HasConfirmedPage = userDetailsWithPwd.HasConfirmedPage
 	UserDetails.HasPostedPage = userDetailsWithPwd.HasPostedPage
 	UserDetails.Role = userDetailsWithPwd.Role
+	UserDetails.ColorBackground = userDetailsWithPwd.ColorBackground
+	UserDetails.ColorText = userDetailsWithPwd.ColorText
 
 	return &UserDetails, nil
 }

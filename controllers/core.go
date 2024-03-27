@@ -26,7 +26,7 @@ type LoginParam struct {
 // write comment for swagger
 // @Title Login
 // @Description login with user_code and password
-// @Param   loginParam     body    LoginParam  true        "loginParam"
+// @Param   loginParam		body		LoginParam  true		"loginParam"
 // @Success 200 {object} utils.JSONStruct
 // @Failure 400 Bad Request
 // @Failure 500 Internal Server Error
@@ -164,18 +164,21 @@ func (c *CoreController) GetUserList() {
 			HasConfirmedPage:  usr.HasConfirmedPage,
 			HasPostedPage:     usr.HasPostedPage,
 			Role:              usr.Role,
-			Inactive:          usr.Inactive})
+			Inactive:          usr.Inactive,
+			ColorBackground:   usr.ColorBackground,
+			ColorText:         usr.ColorText,
+		})
 	}
 
 	usrpage := core.UserPage{}
 	usrpage.CurrentPage = pageIndex
 	l := cnt % pageSize
 	if l == 0 {
-		usrpage.ToltalPages = cnt / pageSize
+		usrpage.TotalPages = cnt / pageSize
 	} else {
-		usrpage.ToltalPages = (cnt / pageSize) + 1
+		usrpage.TotalPages = (cnt / pageSize) + 1
 	}
-	usrpage.ToltalUsers = cnt
+	usrpage.TotalUsers = cnt
 	usrpage.UsersInPage = usrArr
 
 	c.Data["json"] = &utils.JSONStruct{Code: utils.Success, Msg: "Success", Data: usrpage}
@@ -219,7 +222,9 @@ func (c *CoreController) AddOrUpdateUser() {
 			d.HasUploadedPage != c.CurrentUserDetail.HasUploadedPage ||
 			d.Inactive != c.CurrentUserDetail.Inactive ||
 			d.UserCode != c.CurrentUserDetail.UserCode ||
-			d.Role != c.CurrentUserDetail.Role {
+			d.Role != c.CurrentUserDetail.Role ||
+			d.ColorBackground != c.CurrentUserDetail.ColorBackground ||
+			d.ColorText != c.CurrentUserDetail.ColorText {
 			c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorForbidden, Msg: "error - permission denied"}
 			c.ServeJSON()
 			return
@@ -239,6 +244,8 @@ func (c *CoreController) AddOrUpdateUser() {
 		HasPostedPage:     d.HasPostedPage,
 		Inactive:          d.Inactive,
 		Role:              d.Role,
+		ColorText:         d.ColorText,
+		ColorBackground:   d.ColorBackground,
 		Password:          utils.GetMd5StrWithSalt(d.Password, d.UserCode),
 	}
 	//base64.StdEncoding.EncodeToString([]byte(d.Password))

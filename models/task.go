@@ -32,6 +32,7 @@ type FTask struct {
 	Repeatable   string
 	StartDate    string
 	EndDate      string
+	Hours        string
 	RecEndDate   string
 	RecStartDate string
 }
@@ -181,11 +182,15 @@ func CascadeUpdateRecurrentTask(tid string, tt *FTask) (res *FTask, err error) {
 		updTask.Description = changeTask.Description
 		updTask.Location = changeTask.Location
 		updTask.LastModified = time.Now()
-		if sTimeDelta.Hours() != 0 {
+		if sTimeDelta.Minutes() != 0 {
 			updTask.StartDate = updTask.StartDate.Add(sTimeDelta)
+			//avoiding dst
+			updTask.StartDate = time.Date(updTask.StartDate.Year(), updTask.StartDate.Month(), updTask.StartDate.Day(), changeTask.StartDate.Hour(), updTask.StartDate.Minute(), 0, 0, updTask.StartDate.Location())
 		}
-		if eTimeDelta.Hours() != 0 {
+		if eTimeDelta.Minutes() != 0 {
 			updTask.EndDate = updTask.EndDate.Add(eTimeDelta)
+			//avoiding dst
+			updTask.EndDate = time.Date(updTask.EndDate.Year(), updTask.EndDate.Month(), updTask.EndDate.Day(), changeTask.EndDate.Hour(), updTask.EndDate.Minute(), 0, 0, updTask.EndDate.Location())
 		}
 
 		if count, _ := o.QueryTable("task").Filter("task_code", updTask.Task_code).Filter("version", updTask.Version).Count(); count != 0 {
@@ -262,17 +267,26 @@ func ConvertTaskToBackend(t *FTask) (*Task, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	startDate, err := time.Parse(time.RFC3339Nano, t.StartDate)
 	if err != nil {
 		return nil, errors.New("error parsing start_date; wrong date")
 	}
 	res.StartDate = startDate.In(loc)
 
-	endDate, err := time.Parse(time.RFC3339Nano, t.EndDate)
-	if err != nil {
-		return nil, errors.New("error parsing end_date; wrong date")
+	if t.Hours != "" {
+		duration, err := strconv.ParseFloat(t.Hours, 32)
+		if err != nil {
+			return nil, err
+		}
+		res.EndDate = res.StartDate.Add(time.Duration(duration * float64(time.Hour)))
+	} else {
+		endDate, err := time.Parse(time.RFC3339Nano, t.EndDate)
+		if err != nil {
+			return nil, errors.New("error parsing end_date; wrong date")
+		}
+		res.EndDate = endDate.In(loc)
 	}
-	res.EndDate = endDate.In(loc)
 
 	if t.RecEndDate != "" {
 		recEndDate, err := time.Parse(time.RFC3339Nano, t.RecEndDate)
@@ -293,9 +307,12 @@ func ConvertTaskToBackend(t *FTask) (*Task, error) {
 
 func ConvertTaskToFrontend(t *Task) *FTask {
 	res := new(FTask)
+	duration := t.EndDate.Sub(t.StartDate).Hours()
+
 	startDate := t.StartDate.Format(customLayout)
 	endDate := t.EndDate.Format(customLayout)
 	recEndDate := t.RecEndDate.Format(customLayout)
+
 	res.RecEndDate = recEndDate
 	res.Title = t.Title
 	res.Repeatable = t.Repeatable
@@ -305,6 +322,7 @@ func ConvertTaskToFrontend(t *Task) *FTask {
 	res.EndDate = endDate
 	res.StartDate = startDate
 	res.RecStartDate = t.RecStartDate.Format(customLayout)
+	res.Hours = fmt.Sprintf("%.2f", duration)
 	return res
 }
 
