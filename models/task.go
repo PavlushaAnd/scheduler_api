@@ -156,16 +156,23 @@ func UpdateTask(tid string, tt *FTask) (res *FTask, err error) {
 	return res, nil
 }
 
-func CascadeUpdateRecurrentTask(tid string, changeTask *FTask) (res *FTask, err error) {
+func CascadeUpdateRecurrentTask(tid string, tt *FTask) (res *FTask, err error) {
 	o := orm.NewOrm()
 
 	updTask := new(Task)
+	changeTask, convertErr := ConvertTaskToBackend(tt)
+	if convertErr != nil {
+		return nil, convertErr
+	}
 	err = o.QueryTable("task").Filter("task_code", tid).One(updTask)
 	if err == orm.ErrNoRows {
 		return nil, fmt.Errorf("item with ID %v not found", tid)
 	} else if err != nil {
 		return nil, err
 	}
+
+	sTimeDelta := changeTask.StartDate.Sub(updTask.StartDate)
+	eTimeDelta := changeTask.EndDate.Sub(updTask.EndDate)
 	tasks := updTask.recurrentCascadeTaskCodeParser(o)
 
 	for _, v := range tasks {
@@ -174,6 +181,13 @@ func CascadeUpdateRecurrentTask(tid string, changeTask *FTask) (res *FTask, err 
 		updTask.Description = changeTask.Description
 		updTask.Location = changeTask.Location
 		updTask.LastModified = time.Now()
+		if sTimeDelta.Hours() != 0 {
+			updTask.StartDate = updTask.StartDate.Add(sTimeDelta)
+		}
+		if eTimeDelta.Hours() != 0 {
+			updTask.EndDate = updTask.EndDate.Add(eTimeDelta)
+		}
+
 		if count, _ := o.QueryTable("task").Filter("task_code", updTask.Task_code).Filter("version", updTask.Version).Count(); count != 0 {
 			updTask.Version++
 			_, err = o.Update(updTask)

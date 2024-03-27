@@ -1,86 +1,115 @@
 package models
 
 import (
-	"errors"
 	"fmt"
-	"strconv"
-	"time"
 
 	"github.com/beego/beego/v2/client/orm"
 )
 
 type User struct {
-	Id       int    `orm:"column(id)"`
-	UserCode string `orm:"column(user_code)"`
-	Username string `orm:"column(user_name)"`
-	Password string `orm:"column(password)"`
+	Id                int    `orm:"column(id);auto"`
+	UserCode          string `orm:"column(user_code)"`
+	UserName          string `orm:"column(user_name)"`
+	Inactive          bool   `orm:"column(inactive)"`
+	PhoneNo           string `orm:"column(phone_no)"`
+	EmailAddress      string `orm:"column(email_address)"`
+	HasUploadedPage   bool   `orm:"column(has_uploaded_page)"`
+	HasRecognisedPage bool   `orm:"column(has_recognised_page)"`
+	HasConfirmedPage  bool   `orm:"column(has_confirmed_page)"`
+	HasPostedPage     bool   `orm:"column(has_posted_page)"`
+	Password          string `orm:"column(password)"`
+	Role              string `orm:"column(role)"`
 }
 
-func AddUser(u *User) (string, error) {
-	o := orm.NewOrm()
-
-	u.UserCode = "user_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-
-	_, insertErr := o.Insert(u)
-
-	if insertErr != nil {
-		return "", errors.New("failed to insert user to database")
-	}
-
-	return u.UserCode, nil
+func (t *User) TableName() string {
+	return "user"
 }
 
-/* func GetUser(uid string) (u *User, err error) {
-	if u, ok := UserList[uid]; ok {
-		return u, nil
-	}
-	return nil, errors.New("User not exists")
+func init() {
+	orm.RegisterModel(new(User))
 }
 
-func GetAllUsers() map[string]*User {
-	return UserList
-} */
+func GetUser(useCode string, o orm.Ormer) (*User, error) {
+	user := User{}
 
-/*
-	 func UpdateUser(uid string, uu *User) (a *User, err error) {
-		if u, ok := UserList[uid]; ok {
-			if uu.Username != "" {
-				u.Username = uu.Username
-			}
-			if uu.Password != "" {
-				u.Password = uu.Password
-			}
-			if uu.Profile.Age != 0 {
-				u.Profile.Age = uu.Profile.Age
-			}
-			if uu.Profile.Address != "" {
-				u.Profile.Address = uu.Profile.Address
-			}
-			if uu.Profile.Gender != "" {
-				u.Profile.Gender = uu.Profile.Gender
-			}
-			if uu.Profile.Email != "" {
-				u.Profile.Email = uu.Profile.Email
-			}
-			return u, nil
+	qs := o.QueryTable(new(User)) //.Filter("inactive", 0)
+	err := qs.Filter("user_code", useCode).One(&user)
+	if err != nil {
+		if err == orm.ErrNoRows {
+			return nil, nil
 		}
-		return nil, errors.New("User Not Exist")
+		return nil, err
 	}
-*/
-func Login(username, password string) (bool, error) {
-	o := orm.NewOrm()
 
-	q := o.QueryTable("user").Filter("user_name", username)
-	if q.Exist() {
-		if q.Filter("password", password).Exist() {
-			return true, nil
-		}
-		return false, fmt.Errorf("wrong password")
-	} else {
-		return false, fmt.Errorf("user %v not found", username)
-	}
+	return &user, nil
 }
 
-/* func DeleteUser(uid string) {
-	delete(UserList, uid)
-} */
+func InsertUser(user *User, o orm.Ormer) error {
+	_, err := o.Insert(user)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UpdateUser(user *User, o orm.Ormer) error {
+	_, err := o.Update(user)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UpdateUserWithoutPwd(user *User, o orm.Ormer) error {
+	_, err := o.Update(user, "user_name", "phone_no", "email_address", "inactive", "role", "has_uploaded_page", "has_recognised_page", "has_confirmed_page", "has_posted_page")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func ListUser(userName string, page, pageSize int, o orm.Ormer) ([]*User, int, error) {
+	var users []*User
+
+	qs := o.QueryTable(new(User)) //.Filter("inactive", 0)
+
+	if userName != "" {
+		qs = qs.Filter("user_name__icontains", userName)
+	}
+
+	count, err := qs.Count()
+	if err != nil {
+		return nil, 0, fmt.Errorf("error on counting user - %s", err.Error())
+	}
+	if count == 0 {
+		return nil, 0, nil
+	}
+
+	if page > 0 && pageSize > 0 {
+		offset := (page - 1) * pageSize
+		limit := pageSize
+		qs = qs.Limit(limit).Offset(offset)
+	}
+
+	_, err = qs.All(&users)
+	if err != nil {
+		if err == orm.ErrNoRows {
+			return nil, int(count), nil
+		}
+		return nil, int(count), fmt.Errorf("error on listing user - %s", err.Error())
+	}
+
+	return users, int(count), nil
+}
+
+func DelUser(user *User, o orm.Ormer) error {
+	_, err := o.Delete(user)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
