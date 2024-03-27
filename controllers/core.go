@@ -26,7 +26,7 @@ type LoginParam struct {
 // write comment for swagger
 // @Title Login
 // @Description login with user_code and password
-// @Param   LoginParam     body    LoginParam  true        "loginParam"
+// @Param   loginParam		body		LoginParam  true		"loginParam"
 // @Success 200 {object} utils.JSONStruct
 // @Failure 400 Bad Request
 // @Failure 500 Internal Server Error

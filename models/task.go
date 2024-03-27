@@ -182,12 +182,12 @@ func CascadeUpdateRecurrentTask(tid string, tt *FTask) (res *FTask, err error) {
 		updTask.Description = changeTask.Description
 		updTask.Location = changeTask.Location
 		updTask.LastModified = time.Now()
-		if sTimeDelta != 0 {
+		if sTimeDelta.Minutes() != 0 {
 			updTask.StartDate = updTask.StartDate.Add(sTimeDelta)
 			//avoiding dst
 			updTask.StartDate = time.Date(updTask.StartDate.Year(), updTask.StartDate.Month(), updTask.StartDate.Day(), changeTask.StartDate.Hour(), updTask.StartDate.Minute(), 0, 0, updTask.StartDate.Location())
 		}
-		if eTimeDelta != 0 {
+		if eTimeDelta.Minutes() != 0 {
 			updTask.EndDate = updTask.EndDate.Add(eTimeDelta)
 			//avoiding dst
 			updTask.EndDate = time.Date(updTask.EndDate.Year(), updTask.EndDate.Month(), updTask.EndDate.Day(), changeTask.EndDate.Hour(), updTask.EndDate.Minute(), 0, 0, updTask.EndDate.Location())
