@@ -16,6 +16,35 @@ definitions:
       user_code:
         type: string
     type: object
+  core.UserDetails:
+    properties:
+      color_background:
+        type: string
+      color_text:
+        type: string
+      email_address:
+        type: string
+      has_confirmed_page:
+        type: boolean
+      has_posted_page:
+        type: boolean
+      has_recognised_page:
+        type: boolean
+      has_uploaded_page:
+        type: boolean
+      id:
+        type: integer
+      inactive:
+        type: boolean
+      phone_no:
+        type: string
+      role:
+        type: string
+      user_code:
+        type: string
+      user_name:
+        type: string
+    type: object
   core.UserDetailsWithPwd:
     properties:
       color_background:
@@ -46,6 +75,25 @@ definitions:
         type: string
       user_name:
         type: string
+    type: object
+  core.UserPage:
+    properties:
+      CurrentPage:
+        example: 1
+        format: int
+        type: integer
+      ToltalPages:
+        example: 1
+        format: int
+        type: integer
+      ToltalUsers:
+        example: 1
+        format: int
+        type: integer
+      Users:
+        items:
+          $ref: '#/definitions/core.UserDetails'
+        type: array
     type: object
   models.FTask:
     properties:
@@ -88,14 +136,28 @@ info:
   title: Scheduler Test API
   version: 1.0.0
 paths:
-  /:
+  /task/:
     get:
       description: get all Tasks
+      parameters:
+      - description: With the bearer in front
+        in: header
+        name: Authorization
+        required: true
+        type: string
       responses:
         "200":
-          description: OK
+          description: model or error message
           schema:
-            $ref: '#/definitions/models.FTask'
+            items:
+              $ref: '#/definitions/models.FTask'
+            type: array
+        "400":
+          description: Bad Request
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - tasks
     post:
       description: create single/recurrent Task
       parameters:
@@ -105,16 +167,23 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.FTask'
+      - description: With the bearer in front
+        in: header
+        name: Authorization
+        required: true
+        type: string
       responses:
         "200":
-          description: OK
+          description: success post! or error message
           schema:
-            type: success
-        "403":
-          description: Forbidden
-          schema:
-            type: error
-  /:task_code:
+            type: string
+        "400":
+          description: Bad Request
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - tasks
+  /task/:task_code:
     get:
       description: get task by task_code
       parameters:
@@ -123,16 +192,136 @@ paths:
         name: task_code
         required: true
         type: string
+      - description: With the bearer in front
+        in: header
+        name: Authorization
+        required: true
+        type: string
       responses:
         "200":
-          description: OK
+          description: model or task not exist
           schema:
             $ref: '#/definitions/models.FTask'
-        "403":
-          description: Forbidden
+        "400":
+          description: Bad Request
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - tasks
+  /task/taskDel/:task_code:
+    delete:
+      description: delete the task
+      parameters:
+      - description: The task_code you want to delete
+        in: path
+        name: task_code
+        required: true
+        type: string
+      - description: With the bearer in front
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: delete success! or Task is empty
           schema:
-            type: task_code
-  /addorupd:
+            type: string
+        "400":
+          description: Bad Request
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - tasks
+  /task/taskRecDel/:task_code:
+    delete:
+      description: delete recurrence by Task
+      parameters:
+      - description: The task_code you want to delete
+        in: path
+        name: task_code
+        required: true
+        type: string
+      - description: With the bearer in front
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: delete success! or Task is empty
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - tasks
+  /task/taskRecUpd/:task_code:
+    post:
+      description: update recurrence by Tasks (can receive FTask but will update only
+        Title, Description and Location)
+      parameters:
+      - description: The task_code you want to update
+        in: path
+        name: task_code
+        required: true
+        type: string
+      - description: body for task content
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.FTask'
+      - description: With the bearer in front
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: model or error message
+          schema:
+            $ref: '#/definitions/models.FTask'
+        "400":
+          description: Bad Request
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - tasks
+  /task/taskUpd/:task_code:
+    post:
+      description: update the task
+      parameters:
+      - description: The task_code you want to update
+        in: path
+        name: task_code
+        required: true
+        type: string
+      - description: body for task content
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.FTask'
+      - description: With the bearer in front
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: model or task not exist
+          schema:
+            $ref: '#/definitions/models.FTask'
+        "400":
+          description: Bad Request
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - tasks
+  /user/addorupd:
     post:
       description: add or update user
       parameters:
@@ -153,11 +342,11 @@ paths:
             $ref: '#/definitions/utils.JSONStruct'
         "400":
           description: Bad Request
-          schema:
-            type: Bad
       security:
       - ApiKeyAuth: []
-  /delete:
+      tags:
+      - users
+  /user/delete:
     delete:
       description: delete user
       parameters:
@@ -178,11 +367,11 @@ paths:
             $ref: '#/definitions/utils.JSONStruct'
         "400":
           description: Bad Request
-          schema:
-            type: Bad
       security:
       - ApiKeyAuth: []
-  /login:
+      tags:
+      - users
+  /user/login:
     post:
       description: login with user_code and password
       parameters:
@@ -196,16 +385,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/utils.JSONStruct'
+            allOf:
+            - $ref: '#/definitions/utils.JSONStruct'
+            - properties:
+                data:
+                  $ref: '#/definitions/core.UserDetailsWithPwd'
+              type: object
         "400":
           description: Bad Request
-          schema:
-            type: Bad
         "500":
           description: Internal Server Error
-          schema:
-            type: Internal
-  /rstpasswd:
+      tags:
+      - users
+  /user/rstpasswd:
     post:
       description: reset password
       parameters:
@@ -227,96 +419,11 @@ paths:
             $ref: '#/definitions/utils.JSONStruct'
         "400":
           description: Bad Request
-          schema:
-            type: Bad
       security:
       - ApiKeyAuth: []
-  /taskDel/:task_code:
-    delete:
-      description: delete the task
-      parameters:
-      - description: The task_code you want to delete
-        in: path
-        name: task_code
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: task_code
-        "403":
-          description: Forbidden
-          schema:
-            type: task_code
-  /taskRecDel/:task_code:
-    delete:
-      description: delete recurrence by Task
-      parameters:
-      - description: The task_code you want to delete
-        in: path
-        name: task_code
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: task_code
-        "403":
-          description: Forbidden
-          schema:
-            type: task_code
-  /taskRecUpd/:task_code:
-    post:
-      description: update recurrence by Tasks (can receive FTask but will update only
-        Title, Description and Location)
-      parameters:
-      - description: The task_code you want to update
-        in: path
-        name: task_code
-        required: true
-        type: string
-      - description: body for task content
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.FTask'
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.FTask'
-        "403":
-          description: Forbidden
-          schema:
-            type: error
-  /taskUpd/:task_code:
-    post:
-      description: update the task
-      parameters:
-      - description: The task_code you want to update
-        in: path
-        name: task_code
-        required: true
-        type: string
-      - description: body for task content
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.FTask'
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.FTask'
-        "403":
-          description: Forbidden
-          schema:
-            type: error
-  /updpasswd:
+      tags:
+      - users
+  /user/updpasswd:
     post:
       description: Modify password
       parameters:
@@ -338,11 +445,11 @@ paths:
             $ref: '#/definitions/utils.JSONStruct'
         "400":
           description: Bad Request
-          schema:
-            type: Bad
       security:
       - ApiKeyAuth: []
-  /userlist:
+      tags:
+      - users
+  /user/userlist:
     get:
       description: get user list
       parameters:
@@ -365,13 +472,18 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/utils.JSONStruct'
+            allOf:
+            - $ref: '#/definitions/utils.JSONStruct'
+            - properties:
+                data:
+                  $ref: '#/definitions/core.UserPage'
+              type: object
         "400":
           description: Bad Request
-          schema:
-            type: Bad
       security:
       - ApiKeyAuth: []
+      tags:
+      - users
 schemes:
 - http
 - https
