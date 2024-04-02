@@ -108,7 +108,6 @@ definitions:
       recEndDate:
         type: string
       recStartDate:
-        description: need?
         type: string
       repeatable:
         type: string

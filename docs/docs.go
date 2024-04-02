@@ -741,7 +741,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "recStartDate": {
-                    "description": "need?",
                     "type": "string"
                 },
                 "repeatable": {

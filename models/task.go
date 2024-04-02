@@ -36,7 +36,7 @@ type FTask struct {
 	EndDate      string
 	Hours        string
 	RecEndDate   string
-	RecStartDate string //need?
+	RecStartDate string
 }
 
 func AddTask(o orm.Ormer, t *FTask) (string, error) {
