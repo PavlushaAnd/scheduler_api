@@ -3,14 +3,16 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"scheduler_api/core"
 	"scheduler_api/models"
+	"scheduler_api/utils"
 
-	beego "github.com/beego/beego/v2/server/web"
+	"github.com/beego/beego/v2/client/orm"
 )
 
 // Operations about Tasks
 type TaskController struct {
-	beego.Controller
+	core.Core
 }
 
 // @Title CreateTask
@@ -19,31 +21,51 @@ type TaskController struct {
 // @Success 200  success post!
 // @Failure 403 error message
 // @router / [post]
-func (t *TaskController) Post() {
-	var task *models.FTask
-	json.Unmarshal(t.Ctx.Input.RequestBody, &task)
-	_, addErr := models.AddTask(task)
-	if addErr != nil {
-		t.Data["json"] = addErr.Error()
-	} else {
-		t.Data["json"] = "success post!"
-	}
+func (c *TaskController) Post() {
+	c.RequireLogin()
+	o := orm.NewOrm()
 
-	t.ServeJSON()
+	var task *models.FTask
+	json.Unmarshal(c.Ctx.Input.RequestBody, &task)
+	//forcing non admin users to schedule only tasks for them
+	if (c.CurrentUserDetail.Role != "admin") && (c.CurrentUserDetail.UserCode != task.UserCode) {
+		task.UserCode = c.CurrentUserDetail.UserCode
+	}
+	_, addErr := models.AddTask(o, task)
+	if addErr != nil {
+		c.Data["json"] = addErr.Error()
+	} else {
+		c.Data["json"] = "success post!"
+	}
+	c.ServeJSON()
 }
 
 // @Title GetAllTasks
 // @Description get all Tasks
 // @Success 200 {object} models.FTask
 // @router / [get]
-func (t *TaskController) GetAll() {
+func (c *TaskController) GetAll() {
+	c.RequireLogin()
+	var res []*models.FTask
 	tasks, err := models.GetAllTasks()
 	if err != nil {
-		t.Data["json"] = err.Error()
-	} else {
-		t.Data["json"] = tasks
+		c.Data["json"] = err.Error()
+		c.ServeJSON()
+		return
 	}
-	t.ServeJSON()
+	if c.CurrentUserDetail.Role == "admin" {
+		c.Data["json"] = tasks
+		c.ServeJSON()
+	} else {
+		for _, task := range tasks {
+			if task.UserCode == c.CurrentUserDetail.UserCode {
+				res = append(res, task)
+			}
+		}
+		c.Data["json"] = res
+		c.ServeJSON()
+		return
+	}
 }
 
 // @Title GetTask
@@ -52,17 +74,24 @@ func (t *TaskController) GetAll() {
 // @Success 200 {object} models.FTask
 // @Failure 403 {task_code} is empty
 // @router /:task_code [get]
-func (t *TaskController) Get() {
-	tid := t.GetString(":task_code")
+func (c *TaskController) Get() {
+	c.RequireLogin()
+	//permissions should be discussed
+	if c.CurrentUserDetail.Role != "admin" {
+		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorForbidden, Msg: "error - permission denied"}
+		c.ServeJSON()
+		return
+	}
+	tid := c.GetString(":task_code")
 	if tid != "" {
 		task, err := models.GetTask(tid)
 		if err != nil {
-			t.Data["json"] = err.Error()
+			c.Data["json"] = err.Error()
 		} else {
-			t.Data["json"] = task
+			c.Data["json"] = task
 		}
 	}
-	t.ServeJSON()
+	c.ServeJSON()
 }
 
 // @Title UpdateTask
@@ -72,19 +101,21 @@ func (t *TaskController) Get() {
 // @Success 200 {object} models.FTask
 // @Failure 403 error message
 // @router /taskUpd/:task_code [post]
-func (t *TaskController) Put() {
-	tid := t.GetString(":task_code")
+func (c *TaskController) Put() {
+	c.RequireLogin()
+	tid := c.GetString(":task_code")
 	if tid != "" {
 		var task models.FTask
-		json.Unmarshal(t.Ctx.Input.RequestBody, &task)
-		tt, err := models.UpdateTask(tid, &task)
-		if err != nil {
-			t.Data["json"] = err.Error()
-		} else {
-			t.Data["json"] = tt
+		json.Unmarshal(c.Ctx.Input.RequestBody, &task)
+		if (c.CurrentUserDetail.Role != "admin") && (c.CurrentUserDetail.UserCode != task.UserCode) {
+			task.UserCode = c.CurrentUserDetail.UserCode
 		}
+		err := models.UpdateTask(tid, &task)
+		if err != nil {
+			c.Data["json"] = err.Error()
+		}
+		c.ServeJSON()
 	}
-	t.ServeJSON()
 }
 
 // @Title DeleteTask
@@ -93,19 +124,25 @@ func (t *TaskController) Put() {
 // @Success 200 {task_code} delete success!
 // @Failure 403 {task_code} is empty
 // @router /taskDel/:task_code [delete]
-func (t *TaskController) Delete() {
-	tid := t.GetString(":task_code")
+func (c *TaskController) Delete() {
+	c.RequireLogin()
+	if c.CurrentUserDetail.Role != "admin" {
+		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorForbidden, Msg: "error - permission denied"}
+		c.ServeJSON()
+		return
+	}
+	tid := c.GetString(":task_code")
 	smth, err := models.DeleteTask(tid)
 	if err != nil {
-		t.Data["json"] = err.Error()
+		c.Data["json"] = err.Error()
 	} else {
 		if smth {
-			t.Data["json"] = fmt.Sprintf("%v delete success!", tid)
+			c.Data["json"] = fmt.Sprintf("%v delete success!", tid)
 		} else {
-			t.Data["json"] = fmt.Sprintf("%v is empty", tid)
+			c.Data["json"] = fmt.Sprintf("%v is empty", tid)
 		}
 	}
-	t.ServeJSON()
+	c.ServeJSON()
 }
 
 // @Title DeleteCascadeTask
@@ -114,19 +151,20 @@ func (t *TaskController) Delete() {
 // @Success 200 {task_code} delete success!
 // @Failure 403 {task_code} is empty
 // @router /taskRecDel/:task_code [delete]
-func (t *TaskController) DeleteCascade() {
-	tid := t.GetString(":task_code")
+func (c *TaskController) DeleteCascade() {
+	c.RequireLogin()
+	tid := c.GetString(":task_code")
 	smth, err := models.CascadeDeleteRecurrentTask(tid)
 	if err != nil {
-		t.Data["json"] = err.Error()
+		c.Data["json"] = err.Error()
 	} else {
 		if smth {
-			t.Data["json"] = fmt.Sprintf("%v delete success!", tid)
+			c.Data["json"] = fmt.Sprintf("%v delete success!", tid)
 		} else {
-			t.Data["json"] = fmt.Sprintf("%v is empty", tid)
+			c.Data["json"] = fmt.Sprintf("%v is empty", tid)
 		}
 	}
-	t.ServeJSON()
+	c.ServeJSON()
 }
 
 // @Title UpdateCascadeTask
@@ -136,17 +174,22 @@ func (t *TaskController) DeleteCascade() {
 // @Success 200 {object} models.FTask
 // @Failure 403 error message
 // @router /taskRecUpd/:task_code [post]
-func (t *TaskController) PutCascade() {
-	tid := t.GetString(":task_code")
+func (c *TaskController) PutCascade() {
+	c.RequireLogin()
+	tid := c.GetString(":task_code")
 	if tid != "" {
 		var task models.FTask
-		json.Unmarshal(t.Ctx.Input.RequestBody, &task)
+		json.Unmarshal(c.Ctx.Input.RequestBody, &task)
+		if (c.CurrentUserDetail.Role != "admin") && (c.CurrentUserDetail.UserCode != task.UserCode) {
+			task.UserCode = c.CurrentUserDetail.UserCode
+		}
 		tt, err := models.CascadeUpdateRecurrentTask(tid, &task)
 		if err != nil {
-			t.Data["json"] = err.Error()
+			c.Data["json"] = err.Error()
 		} else {
-			t.Data["json"] = tt
+			c.Data["json"] = tt
 		}
 	}
-	t.ServeJSON()
+	c.Data["json"] = fmt.Sprint("no task code in request")
+	c.ServeJSON()
 }

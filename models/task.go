@@ -13,32 +13,33 @@ type Task struct {
 	Id           int       `orm:"column(id)"`
 	Task_code    string    `orm:"column(task_code)"`
 	Title        string    `orm:"column(title)"`
+	UserCode     string    `orm:"column(user_code)"`
 	Description  string    `orm:"column(description); null"`
 	Location     string    `orm:"column(location)"`
 	Repeatable   string    `orm:"column(repeatable)"`
-	StartDate    time.Time `orm:"type(datetime)"`
-	EndDate      time.Time `orm:"type(datetime)"`
-	RecEndDate   time.Time `orm:"type(datetime); null"`
-	RecStartDate time.Time `orm:"type(datetime); null"`
+	StartDate    time.Time `orm:"type(datetime); column(start_date)"`
+	EndDate      time.Time `orm:"type(datetime); column(end_date)"`
+	RecEndDate   time.Time `orm:"type(datetime); null; column(rec_end_date)"`
+	RecStartDate time.Time `orm:"type(datetime); null; column(rec_start_date)"`
 	Version      int       `orm:"version"`
-	LastModified time.Time
+	LastModified time.Time `orm:"column(last_modified)"`
 }
 
 type FTask struct {
 	Task_code    string
 	Title        string
 	Description  string
+	UserCode     string
 	Location     string
 	Repeatable   string
 	StartDate    string
 	EndDate      string
 	Hours        string
 	RecEndDate   string
-	RecStartDate string
+	RecStartDate string //need?
 }
 
-func AddTask(t *FTask) (string, error) {
-	o := orm.NewOrm()
+func AddTask(o orm.Ormer, t *FTask) (string, error) {
 
 	t.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	tb, err := ConvertTaskToBackend(t)
@@ -110,25 +111,26 @@ func GetAllTasks() ([]*FTask, error) {
 	return tf, nil
 }
 
-func UpdateTask(tid string, tt *FTask) (res *FTask, err error) {
+func UpdateTask(tid string, tt *FTask) error {
 	o := orm.NewOrm()
 
 	changeTask, convertErr := ConvertTaskToBackend(tt)
 	if convertErr != nil {
-		return nil, convertErr
+		return convertErr
 	}
 	updTask := new(Task)
-	err = o.QueryTable("task").Filter("task_code", tid).One(updTask)
+	err := o.QueryTable("task").Filter("task_code", tid).One(updTask)
 	if err == orm.ErrNoRows {
-		return nil, fmt.Errorf("item with ID %v not found", tid)
+		return fmt.Errorf("item with ID %v not found", tid)
 	} else if err != nil {
-		return nil, err
+		return err
 	}
 	updTask.Title = changeTask.Title
 	updTask.Description = changeTask.Description
 	updTask.StartDate = changeTask.StartDate
 	updTask.EndDate = changeTask.EndDate
 	updTask.Location = changeTask.Location
+	updTask.UserCode = changeTask.UserCode
 	updTask.LastModified = time.Now()
 	if (changeTask.Repeatable != "") && (!changeTask.RecEndDate.IsZero()) {
 		updTask.Repeatable = changeTask.Repeatable
@@ -140,21 +142,20 @@ func UpdateTask(tid string, tt *FTask) (res *FTask, err error) {
 
 		_, err = o.Update(updTask)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		//creating recurrent tasks and deleting entry duplicate
 		if (changeTask.Repeatable != "") && (!changeTask.RecEndDate.IsZero()) {
-			tid, _ := AddTask(tt)
+			tid, _ := AddTask(o, tt)
 			DeleteTask(tid)
 		}
 
 	} else {
-		return nil, errors.New("concurrency error")
+		return errors.New("concurrency error")
 
 	}
 
-	res = ConvertTaskToFrontend(updTask)
-	return res, nil
+	return nil
 }
 
 func CascadeUpdateRecurrentTask(tid string, tt *FTask) (res *FTask, err error) {
@@ -181,6 +182,7 @@ func CascadeUpdateRecurrentTask(tid string, tt *FTask) (res *FTask, err error) {
 		updTask.Title = changeTask.Title
 		updTask.Description = changeTask.Description
 		updTask.Location = changeTask.Location
+		updTask.UserCode = changeTask.UserCode
 		updTask.LastModified = time.Now()
 		if sTimeDelta.Minutes() != 0 {
 			updTask.StartDate = updTask.StartDate.Add(sTimeDelta)
@@ -298,6 +300,7 @@ func ConvertTaskToBackend(t *FTask) (*Task, error) {
 	}
 
 	res.Title = t.Title
+	res.UserCode = t.UserCode
 	res.Repeatable = t.Repeatable
 	res.Description = t.Description
 	res.Task_code = t.Task_code
@@ -315,6 +318,7 @@ func ConvertTaskToFrontend(t *Task) *FTask {
 
 	res.RecEndDate = recEndDate
 	res.Title = t.Title
+	res.UserCode = t.UserCode
 	res.Repeatable = t.Repeatable
 	res.Description = t.Description
 	res.Task_code = t.Task_code

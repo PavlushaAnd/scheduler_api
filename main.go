@@ -10,6 +10,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/pkg/errors"
 
+	_ "scheduler_api/docs"
+
 	"github.com/beego/beego/v2/client/orm"
 	beego "github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/server/web/filter/cors"
@@ -18,8 +20,8 @@ import (
 func main() {
 	//DB connection
 	orm.Debug = true
-	//conn := "root:WhisperingW@ves22@tcp(127.0.0.1:3306)/schedulerdbdev?charset=utf8&parseTime=true&loc=Local"
-	conn := "rooty:WhisperingW@ves22@tcp(192.168.69.52:3306)/schedulerdb?charset=utf8&parseTime=true&loc=Local"
+	conn := "root:WhisperingW@ves22@tcp(127.0.0.1:3306)/schedulerdbdev?charset=utf8&parseTime=true&loc=Local"
+	//conn := "rooty:WhisperingW@ves22@tcp(192.168.69.52:3306)/schedulerdb?charset=utf8&parseTime=true&loc=Local"
 	orm.RegisterDriver("mysql", orm.DRMySQL)
 	err := orm.RegisterDataBase("default", "mysql", conn)
 	if err != nil {
@@ -40,7 +42,7 @@ func main() {
 
 	if beego.BConfig.RunMode == "dev" {
 		beego.BConfig.WebConfig.DirectoryIndex = true
-		beego.BConfig.WebConfig.StaticDir["/swagger"] = "swagger"
+		beego.BConfig.WebConfig.StaticDir["/swagger"] = "docs"
 	}
 	beego.Run()
 }
