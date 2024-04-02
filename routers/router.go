@@ -34,16 +34,6 @@ func init() {
 		beego.NSRouter("/user/delete", &controllers.CoreController{}, "delete:Delete"),
 		beego.NSRouter("/user/updpasswd", &controllers.CoreController{}, "post:ModifyPassword"),
 		beego.NSRouter("/user/rstpasswd", &controllers.CoreController{}, "post:ResetPassword"),
-		beego.NSNamespace("/task",
-			beego.NSInclude(
-				&controllers.TaskController{},
-			),
-		),
-		beego.NSNamespace("/user",
-			beego.NSInclude(
-				&controllers.CoreController{},
-			),
-		),
 	)
 	beego.AddNamespace(ns)
 }

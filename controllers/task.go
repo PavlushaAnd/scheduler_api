@@ -16,11 +16,15 @@ type TaskController struct {
 }
 
 // @Title CreateTask
+// @tags tasks
 // @Description create single/recurrent Task
 // @Param	body		body 	models.FTask	true		"body for user content"
-// @Success 200  success post!
-// @Failure 403 error message
-// @router / [post]
+// @Success 200  {string} string "success post! or error message"
+// @Failure 400
+// @router /task/ [post]
+// @Security ApiKeyAuth
+// @SecurityDefinition BearerAuth api_key Authorization header with JWT token
+// @Param Authorization header string true "With the bearer in front"
 func (c *TaskController) Post() {
 	c.RequireLogin()
 	o := orm.NewOrm()
@@ -41,9 +45,14 @@ func (c *TaskController) Post() {
 }
 
 // @Title GetAllTasks
+// @tags tasks
 // @Description get all Tasks
-// @Success 200 {object} models.FTask
-// @router / [get]
+// @Success 200 {object} []models.FTask "model or error message"
+// @Failure 400
+// @router /task/ [get]
+// @Security ApiKeyAuth
+// @SecurityDefinition BearerAuth api_key Authorization header with JWT token
+// @Param Authorization header string true "With the bearer in front"
 func (c *TaskController) GetAll() {
 	c.RequireLogin()
 	var res []*models.FTask
@@ -70,10 +79,14 @@ func (c *TaskController) GetAll() {
 
 // @Title GetTask
 // @Description get task by task_code
+// @tags tasks
 // @Param	task_code		path 	string	true		"The key for Task"
-// @Success 200 {object} models.FTask
-// @Failure 403 {task_code} is empty
-// @router /:task_code [get]
+// @Success 200 {object} models.FTask "model or task not exist"
+// @Failure 400
+// @router /task/:task_code [get]
+// @Security ApiKeyAuth
+// @SecurityDefinition BearerAuth api_key Authorization header with JWT token
+// @Param Authorization header string true "With the bearer in front"
 func (c *TaskController) Get() {
 	c.RequireLogin()
 	//permissions should be discussed
@@ -96,11 +109,15 @@ func (c *TaskController) Get() {
 
 // @Title UpdateTask
 // @Description update the task
+// @tags tasks
 // @Param	task_code		path 	string	true		"The task_code you want to update"
 // @Param	body		body 	models.FTask	true		"body for task content"
-// @Success 200 {object} models.FTask
-// @Failure 403 error message
-// @router /taskUpd/:task_code [post]
+// @Success 200 {object} models.FTask "model or task not exist"
+// @Failure 400
+// @router /task/taskUpd/:task_code [post]
+// @Security ApiKeyAuth
+// @SecurityDefinition BearerAuth api_key Authorization header with JWT token
+// @Param Authorization header string true "With the bearer in front"
 func (c *TaskController) Put() {
 	c.RequireLogin()
 	tid := c.GetString(":task_code")
@@ -120,10 +137,14 @@ func (c *TaskController) Put() {
 
 // @Title DeleteTask
 // @Description delete the task
+// @tags tasks
 // @Param	task_code		path 	string	true		"The task_code you want to delete"
-// @Success 200 {task_code} delete success!
-// @Failure 403 {task_code} is empty
-// @router /taskDel/:task_code [delete]
+// @Success 200 {string} string "delete success! or Task is empty"
+// @Failure 400
+// @router /task/taskDel/:task_code [delete]
+// @Security ApiKeyAuth
+// @SecurityDefinition BearerAuth api_key Authorization header with JWT token
+// @Param Authorization header string true "With the bearer in front"
 func (c *TaskController) Delete() {
 	c.RequireLogin()
 	if c.CurrentUserDetail.Role != "admin" {
@@ -146,11 +167,15 @@ func (c *TaskController) Delete() {
 }
 
 // @Title DeleteCascadeTask
+// @tags tasks
 // @Description delete recurrence by Task
 // @Param	task_code		path 	string	true		"The task_code you want to delete"
-// @Success 200 {task_code} delete success!
-// @Failure 403 {task_code} is empty
-// @router /taskRecDel/:task_code [delete]
+// @Success 200 {string} string "delete success! or Task is empty"
+// @Failure 400
+// @router /task/taskRecDel/:task_code [delete]
+// @Security ApiKeyAuth
+// @SecurityDefinition BearerAuth api_key Authorization header with JWT token
+// @Param Authorization header string true "With the bearer in front"
 func (c *TaskController) DeleteCascade() {
 	c.RequireLogin()
 	tid := c.GetString(":task_code")
@@ -168,12 +193,16 @@ func (c *TaskController) DeleteCascade() {
 }
 
 // @Title UpdateCascadeTask
+// @tags tasks
 // @Description update recurrence by Tasks (can receive FTask but will update only Title, Description and Location)
 // @Param	task_code		path 	string	true		"The task_code you want to update"
 // @Param	body		body 	models.FTask	true		"body for task content"
-// @Success 200 {object} models.FTask
-// @Failure 403 error message
-// @router /taskRecUpd/:task_code [post]
+// @Success 200 {object} models.FTask "model or error message"
+// @Failure 400
+// @router /task/taskRecUpd/:task_code [post]
+// @Security ApiKeyAuth
+// @SecurityDefinition BearerAuth api_key Authorization header with JWT token
+// @Param Authorization header string true "With the bearer in front"
 func (c *TaskController) PutCascade() {
 	c.RequireLogin()
 	tid := c.GetString(":task_code")
@@ -190,6 +219,8 @@ func (c *TaskController) PutCascade() {
 			c.Data["json"] = tt
 		}
 	}
-	c.Data["json"] = "no task code in request"
+
+	c.Data["json"] = "no task code in the request"
+
 	c.ServeJSON()
 }

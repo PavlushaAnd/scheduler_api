@@ -15,20 +15,51 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/": {
+        "/task/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "get all Tasks",
+                "tags": [
+                    "tasks"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "With the bearer in front",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "model or error message",
                         "schema": {
-                            "$ref": "#/definitions/models.FTask"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.FTask"
+                            }
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request"
                     }
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "create single/recurrent Task",
+                "tags": [
+                    "tasks"
+                ],
                 "parameters": [
                     {
                         "description": "body for user content",
@@ -38,27 +69,39 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/models.FTask"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "With the bearer in front",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "success post! or error message",
                         "schema": {
-                            "type": "success"
+                            "type": "string"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "error"
-                        }
+                    "400": {
+                        "description": "Bad Request"
                     }
                 }
             }
         },
-        "/:task_code": {
+        "/task/:task_code": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "get task by task_code",
+                "tags": [
+                    "tasks"
+                ],
                 "parameters": [
                     {
                         "type": "string",
@@ -66,25 +109,207 @@ const docTemplate = `{
                         "name": "task_code",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "With the bearer in front",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "model or task not exist",
                         "schema": {
                             "$ref": "#/definitions/models.FTask"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "task_code"
-                        }
+                    "400": {
+                        "description": "Bad Request"
                     }
                 }
             }
         },
-        "/addorupd": {
+        "/task/taskDel/:task_code": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "delete the task",
+                "tags": [
+                    "tasks"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The task_code you want to delete",
+                        "name": "task_code",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "With the bearer in front",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "delete success! or Task is empty",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/task/taskRecDel/:task_code": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "delete recurrence by Task",
+                "tags": [
+                    "tasks"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The task_code you want to delete",
+                        "name": "task_code",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "With the bearer in front",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "delete success! or Task is empty",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/task/taskRecUpd/:task_code": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "update recurrence by Tasks (can receive FTask but will update only Title, Description and Location)",
+                "tags": [
+                    "tasks"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The task_code you want to update",
+                        "name": "task_code",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body for task content",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.FTask"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "With the bearer in front",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "model or error message",
+                        "schema": {
+                            "$ref": "#/definitions/models.FTask"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/task/taskUpd/:task_code": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "update the task",
+                "tags": [
+                    "tasks"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The task_code you want to update",
+                        "name": "task_code",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body for task content",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.FTask"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "With the bearer in front",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "model or task not exist",
+                        "schema": {
+                            "$ref": "#/definitions/models.FTask"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/user/addorupd": {
             "post": {
                 "security": [
                     {
@@ -92,6 +317,9 @@ const docTemplate = `{
                     }
                 ],
                 "description": "add or update user",
+                "tags": [
+                    "users"
+                ],
                 "parameters": [
                     {
                         "description": "user detail",
@@ -117,15 +345,12 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "Bad"
-                        }
+                        "description": "Bad Request"
                     }
                 }
             }
         },
-        "/delete": {
+        "/user/delete": {
             "delete": {
                 "security": [
                     {
@@ -133,6 +358,9 @@ const docTemplate = `{
                     }
                 ],
                 "description": "delete user",
+                "tags": [
+                    "users"
+                ],
                 "parameters": [
                     {
                         "type": "string",
@@ -157,17 +385,17 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "Bad"
-                        }
+                        "description": "Bad Request"
                     }
                 }
             }
         },
-        "/login": {
+        "/user/login": {
             "post": {
                 "description": "login with user_code and password",
+                "tags": [
+                    "users"
+                ],
                 "parameters": [
                     {
                         "description": "loginParam",
@@ -183,25 +411,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/utils.JSONStruct"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.JSONStruct"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/core.UserDetailsWithPwd"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "Bad"
-                        }
+                        "description": "Bad Request"
                     },
                     "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "Internal"
-                        }
+                        "description": "Internal Server Error"
                     }
                 }
             }
         },
-        "/rstpasswd": {
+        "/user/rstpasswd": {
             "post": {
                 "security": [
                     {
@@ -209,6 +443,9 @@ const docTemplate = `{
                     }
                 ],
                 "description": "reset password",
+                "tags": [
+                    "users"
+                ],
                 "parameters": [
                     {
                         "description": "reset user password",
@@ -235,145 +472,12 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "Bad"
-                        }
+                        "description": "Bad Request"
                     }
                 }
             }
         },
-        "/taskDel/:task_code": {
-            "delete": {
-                "description": "delete the task",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "The task_code you want to delete",
-                        "name": "task_code",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "task_code"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "task_code"
-                        }
-                    }
-                }
-            }
-        },
-        "/taskRecDel/:task_code": {
-            "delete": {
-                "description": "delete recurrence by Task",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "The task_code you want to delete",
-                        "name": "task_code",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "task_code"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "task_code"
-                        }
-                    }
-                }
-            }
-        },
-        "/taskRecUpd/:task_code": {
-            "post": {
-                "description": "update recurrence by Tasks (can receive FTask but will update only Title, Description and Location)",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "The task_code you want to update",
-                        "name": "task_code",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "body for task content",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.FTask"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.FTask"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "error"
-                        }
-                    }
-                }
-            }
-        },
-        "/taskUpd/:task_code": {
-            "post": {
-                "description": "update the task",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "The task_code you want to update",
-                        "name": "task_code",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "body for task content",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.FTask"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.FTask"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "error"
-                        }
-                    }
-                }
-            }
-        },
-        "/updpasswd": {
+        "/user/updpasswd": {
             "post": {
                 "security": [
                     {
@@ -381,6 +485,9 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Modify password",
+                "tags": [
+                    "users"
+                ],
                 "parameters": [
                     {
                         "description": "modify user password",
@@ -407,15 +514,12 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "Bad"
-                        }
+                        "description": "Bad Request"
                     }
                 }
             }
         },
-        "/userlist": {
+        "/user/userlist": {
             "get": {
                 "security": [
                     {
@@ -423,6 +527,9 @@ const docTemplate = `{
                     }
                 ],
                 "description": "get user list",
+                "tags": [
+                    "users"
+                ],
                 "parameters": [
                     {
                         "type": "integer",
@@ -450,14 +557,23 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/utils.JSONStruct"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.JSONStruct"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/core.UserPage"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "Bad"
-                        }
+                        "description": "Bad Request"
                     }
                 }
             }
@@ -485,6 +601,50 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "core.UserDetails": {
+            "type": "object",
+            "properties": {
+                "color_background": {
+                    "type": "string"
+                },
+                "color_text": {
+                    "type": "string"
+                },
+                "email_address": {
+                    "type": "string"
+                },
+                "has_confirmed_page": {
+                    "type": "boolean"
+                },
+                "has_posted_page": {
+                    "type": "boolean"
+                },
+                "has_recognised_page": {
+                    "type": "boolean"
+                },
+                "has_uploaded_page": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "inactive": {
+                    "type": "boolean"
+                },
+                "phone_no": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "user_code": {
+                    "type": "string"
+                },
+                "user_name": {
                     "type": "string"
                 }
             }
@@ -533,6 +693,32 @@ const docTemplate = `{
                 },
                 "user_name": {
                     "type": "string"
+                }
+            }
+        },
+        "core.UserPage": {
+            "type": "object",
+            "properties": {
+                "CurrentPage": {
+                    "type": "integer",
+                    "format": "int",
+                    "example": 1
+                },
+                "ToltalPages": {
+                    "type": "integer",
+                    "format": "int",
+                    "example": 1
+                },
+                "ToltalUsers": {
+                    "type": "integer",
+                    "format": "int",
+                    "example": 1
+                },
+                "Users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/core.UserDetails"
+                    }
                 }
             }
         },

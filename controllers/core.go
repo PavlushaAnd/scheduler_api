@@ -24,12 +24,13 @@ type LoginParam struct {
 
 // write comment for swagger
 // @Title Login
+// @tags users
 // @Description login with user_code and password
 // @Param   loginParam		body		LoginParam  true		"loginParam"
-// @Success 200 {object} utils.JSONStruct
-// @Failure 400 Bad Request
-// @Failure 500 Internal Server Error
-// @router /login [post]
+// @Success 200 {object} utils.JSONStruct{data=core.UserDetailsWithPwd}
+// @Failure 400
+// @Failure 500
+// @router /user/login [post]
 func (c *CoreController) Login() {
 	userCode := ""
 	ipAddr := core.ReadClientIP(c.Ctx.Request)
@@ -110,12 +111,13 @@ func (c *CoreController) Login() {
 
 // write comment for swagger
 // @Title Get user list
+// @tags users
 // @Description get user list
 // @Param	pageindex	query	int	true	"page index"
 // @Param	pagesize	query	int	true	"page size"
-// @Success 200 {object} utils.JSONStruct
-// @Failure 400 Bad Request
-// @router /userlist [get]
+// @Success 200 {object} utils.JSONStruct{data=core.UserPage}
+// @Failure 400
+// @router /user/userlist [get]
 // @Security ApiKeyAuth
 // @SecurityDefinition BearerAuth api_key Authorization header with JWT token
 // @Param Authorization header string true "With the bearer in front"
@@ -186,11 +188,12 @@ func (c *CoreController) GetUserList() {
 
 // write comment for swagger
 // @Title add or update user
+// @tags users
 // @Description add or update user
 // @Param	userDetail		body		core.UserDetailsWithPwd	true		"user detail"
 // @Success 200 {object} utils.JSONStruct
-// @Failure 400 Bad Request
-// @router /addorupd [post]
+// @Failure 400
+// @router /user/addorupd [post]
 // @Security ApiKeyAuth
 // @SecurityDefinition BearerAuth api_key Authorization header with JWT token
 // @Param Authorization header string false "With the bearer in front"
@@ -279,11 +282,12 @@ func (c *CoreController) AddOrUpdateUser() {
 
 // write comment for swagger
 // @Title  delete user
+// @tags users
 // @Description delete user
 // @Param	userCode		query		string	true		"user code"
 // @Success 200 {object} utils.JSONStruct
-// @Failure 400 Bad Request
-// @router /delete [delete]
+// @Failure 400
+// @router /user/delete [delete]
 // @Security ApiKeyAuth
 // @SecurityDefinition BearerAuth api_key Authorization header with JWT token
 // @Param Authorization header string true "With the bearer in front"
@@ -330,11 +334,12 @@ func (c *CoreController) DeleteUser() {
 
 // write comment for swagger
 // @Title  Modify password
+// @tags users
 // @Description Modify password
 // @Param	ModifyPwd		body		core.ModifyPwd	true	"modify user password"
 // @Success 200 {object} utils.JSONStruct
-// @Failure 400 Bad Request
-// @router /updpasswd [post]
+// @Failure 400
+// @router /user/updpasswd [post]
 // @Security ApiKeyAuth
 // @SecurityDefinition BearerAuth api_key Authorization header with JWT token
 // @Param Authorization header string true "With the bearer in front"
@@ -408,10 +413,11 @@ func (c *CoreController) ModifyPassword() {
 // write comment for swagger
 // @Title  reset password
 // @Description reset password
+// @tags users
 // @Param	ModifyPwd		body		core.ModifyPwd	true	"reset user password"
 // @Success 200 {object} utils.JSONStruct
-// @Failure 400 Bad Request
-// @router /rstpasswd [post]
+// @Failure 400
+// @router /user/rstpasswd [post]
 // @Security ApiKeyAuth
 // @SecurityDefinition BearerAuth api_key Authorization header with JWT token
 // @Param Authorization header string true "With the bearer in front"
