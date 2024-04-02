@@ -190,6 +190,6 @@ func (c *TaskController) PutCascade() {
 			c.Data["json"] = tt
 		}
 	}
-	c.Data["json"] = fmt.Sprint("no task code in request")
+	c.Data["json"] = "no task code in request"
 	c.ServeJSON()
 }
