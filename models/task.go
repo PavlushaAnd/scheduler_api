@@ -176,9 +176,10 @@ func CascadeUpdateRecurrentTask(tid string, tt *FTask) (res *FTask, err error) {
 	sTimeDelta := changeTask.StartDate.Sub(updTask.StartDate)
 	eTimeDelta := changeTask.EndDate.Sub(updTask.EndDate)
 	tasks := updTask.recurrentCascadeTaskCodeParser(o)
-
-	for _, v := range tasks {
-		o.QueryTable("task").Filter("task_code", v).One(updTask)
+	sh := updTask.RecStartDate.Hour()
+	eh := updTask.RecEndDate.Hour()
+	for _, task := range tasks {
+		o.QueryTable("task").Filter("task_code", task).One(updTask)
 		updTask.Title = changeTask.Title
 		updTask.Description = changeTask.Description
 		updTask.Location = changeTask.Location
@@ -186,13 +187,19 @@ func CascadeUpdateRecurrentTask(tid string, tt *FTask) (res *FTask, err error) {
 		updTask.LastModified = time.Now()
 		if sTimeDelta.Minutes() != 0 {
 			updTask.StartDate = updTask.StartDate.Add(sTimeDelta)
+
+			updTask.RecStartDate = updTask.RecStartDate.Add(sTimeDelta)
 			//avoiding dst
 			updTask.StartDate = time.Date(updTask.StartDate.Year(), updTask.StartDate.Month(), updTask.StartDate.Day(), changeTask.StartDate.Hour(), updTask.StartDate.Minute(), 0, 0, updTask.StartDate.Location())
+			updTask.RecStartDate = time.Date(updTask.RecStartDate.Year(), updTask.RecStartDate.Month(), updTask.RecStartDate.Day(), sh, updTask.RecStartDate.Minute(), 0, 0, updTask.RecStartDate.Location())
 		}
 		if eTimeDelta.Minutes() != 0 {
 			updTask.EndDate = updTask.EndDate.Add(eTimeDelta)
+
+			updTask.RecEndDate = updTask.RecEndDate.Add(eTimeDelta)
 			//avoiding dst
 			updTask.EndDate = time.Date(updTask.EndDate.Year(), updTask.EndDate.Month(), updTask.EndDate.Day(), changeTask.EndDate.Hour(), updTask.EndDate.Minute(), 0, 0, updTask.EndDate.Location())
+			updTask.RecEndDate = time.Date(updTask.RecEndDate.Year(), updTask.RecEndDate.Month(), updTask.RecEndDate.Day(), eh, updTask.RecEndDate.Minute(), 0, 0, updTask.RecEndDate.Location())
 		}
 
 		if count, _ := o.QueryTable("task").Filter("task_code", updTask.Task_code).Filter("version", updTask.Version).Count(); count != 0 {
