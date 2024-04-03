@@ -67,6 +67,7 @@ func (c *TaskController) GetAll() {
 		c.ServeJSON()
 	} else {
 		for _, task := range tasks {
+			//non admin users will receive information only about them
 			if task.UserCode == c.CurrentUserDetail.UserCode {
 				res = append(res, task)
 			}
@@ -124,6 +125,7 @@ func (c *TaskController) Put() {
 	if tid != "" {
 		var task models.FTask
 		json.Unmarshal(c.Ctx.Input.RequestBody, &task)
+		//non admin users can not reassign tasks
 		if (c.CurrentUserDetail.Role != "admin") && (c.CurrentUserDetail.UserCode != task.UserCode) {
 			task.UserCode = c.CurrentUserDetail.UserCode
 		}
@@ -147,6 +149,7 @@ func (c *TaskController) Put() {
 // @Param Authorization header string true "With the bearer in front"
 func (c *TaskController) Delete() {
 	c.RequireLogin()
+	//only admin can delete task
 	if c.CurrentUserDetail.Role != "admin" {
 		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorForbidden, Msg: "error - permission denied"}
 		c.ServeJSON()
@@ -178,6 +181,12 @@ func (c *TaskController) Delete() {
 // @Param Authorization header string true "With the bearer in front"
 func (c *TaskController) DeleteCascade() {
 	c.RequireLogin()
+	//only admin can delete task
+	if c.CurrentUserDetail.Role != "admin" {
+		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorForbidden, Msg: "error - permission denied"}
+		c.ServeJSON()
+		return
+	}
 	tid := c.GetString(":task_code")
 	smth, err := models.CascadeDeleteRecurrentTask(tid)
 	if err != nil {
@@ -208,7 +217,7 @@ func (c *TaskController) PutCascade() {
 	tid := c.GetString(":task_code")
 	if tid != "" {
 		var task models.FTask
-		json.Unmarshal(c.Ctx.Input.RequestBody, &task)
+		//non admin users can not reassign tasks
 		if (c.CurrentUserDetail.Role != "admin") && (c.CurrentUserDetail.UserCode != task.UserCode) {
 			task.UserCode = c.CurrentUserDetail.UserCode
 		}
