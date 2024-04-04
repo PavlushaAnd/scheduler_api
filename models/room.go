@@ -62,3 +62,18 @@ func ListRoom(roomName string, o orm.Ormer) ([]*Room, error) {
 	}
 	return rooms, nil
 }
+
+func GetRoom(roomName string, o orm.Ormer) (*Room, error) {
+	room := Room{}
+
+	qs := o.QueryTable(new(Room))
+
+	err := qs.Filter("room_name", roomName).One(&room)
+	if err != nil {
+		if err == orm.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &room, nil
+}

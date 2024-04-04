@@ -64,7 +64,6 @@ func (c *RoomController) PostAndUpdRoom() {
 	}
 	c.Data["json"] = &utils.JSONStruct{Code: utils.Success, Msg: "Success"}
 	c.ServeJSON()
-
 }
 
 // swagger comment
@@ -97,25 +96,18 @@ func (c *RoomController) DeleteRoom() {
 	delRoom := c.GetString("room_name")
 
 	o := orm.NewOrmUsingDB("default")
-	room, err := models.ListRoom(delRoom, o)
+	room, err := models.GetRoom(delRoom, o)
 	if err != nil {
 		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: fmt.Sprintf("Cannot find room %s, err: - %s", delRoom, err.Error())}
 		c.ServeJSON()
 		return
 	}
-	if len(room) == 1 {
-		err = models.DeleteRoom(room[0], o)
-		if err != nil {
-			c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: fmt.Sprintf("Cannot delete room %s, err: - %s", delRoom, err.Error())}
-			c.ServeJSON()
-			return
-		}
-	} else {
-		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: fmt.Sprintf("Cannot delete room %s, err: name is incorrect", delRoom)}
+	err = models.DeleteRoom(room, o)
+	if err != nil {
+		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: fmt.Sprintf("Cannot delete room %s, err: - %s", delRoom, err.Error())}
 		c.ServeJSON()
 		return
 	}
 	c.Data["json"] = &utils.JSONStruct{Code: utils.Success, Msg: "Success"}
 	c.ServeJSON()
-
 }
