@@ -53,7 +53,7 @@ func ListRoom(roomName string, o orm.Ormer) ([]*Room, error) {
 		qs = qs.Filter("name__icontains", roomName)
 	}
 
-	_, err := qs.All(rooms)
+	_, err := qs.All(&rooms)
 	if err != nil {
 		if err == orm.ErrNoRows {
 			return nil, nil

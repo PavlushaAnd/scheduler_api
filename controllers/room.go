@@ -23,7 +23,7 @@ type RoomView struct {
 }
 
 // swagger comments
-func (c *RoomController) PostAndUpd() {
+func (c *RoomController) PostAndUpdRoom() {
 	c.RequireLogin()
 
 	roomDetailStr := string(c.Ctx.Input.RequestBody)
@@ -62,6 +62,8 @@ func (c *RoomController) PostAndUpd() {
 			return
 		}
 	}
+	c.Data["json"] = &utils.JSONStruct{Code: utils.Success, Msg: "Success"}
+	c.ServeJSON()
 
 }
 
@@ -113,5 +115,7 @@ func (c *RoomController) DeleteRoom() {
 		c.ServeJSON()
 		return
 	}
+	c.Data["json"] = &utils.JSONStruct{Code: utils.Success, Msg: "Success"}
+	c.ServeJSON()
 
 }

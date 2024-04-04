@@ -34,6 +34,10 @@ func init() {
 		beego.NSRouter("/user/delete", &controllers.CoreController{}, "delete:Delete"),
 		beego.NSRouter("/user/updpasswd", &controllers.CoreController{}, "post:ModifyPassword"),
 		beego.NSRouter("/user/rstpasswd", &controllers.CoreController{}, "post:ResetPassword"),
+		//endpoints for rooms
+		beego.NSRouter("/room", &controllers.RoomController{}, "get:GetRoomList"),
+		beego.NSRouter("/room", &controllers.RoomController{}, "post:PostAndUpdRoom"),
+		beego.NSRouter("/room", &controllers.RoomController{}, "delete:DeleteRoom"),
 	)
 	beego.AddNamespace(ns)
 }

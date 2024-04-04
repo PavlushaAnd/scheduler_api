@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"scheduler_api/models"
 	_ "scheduler_api/routers"
 
 	_ "time/tzdata"
@@ -26,7 +25,6 @@ func main() {
 		errors.New(fmt.Sprintf("connect to database failed, err: %v", err))
 		return
 	}
-	orm.RegisterModel(new(models.Task))
 	//orm.RunSyncdb("default", true, true)
 	orm.RunSyncdb("default", false, true)
 	//CORS permissions

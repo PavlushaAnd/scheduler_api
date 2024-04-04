@@ -39,6 +39,10 @@ type FTask struct {
 	RecStartDate string
 }
 
+func init() {
+	orm.RegisterModel(new(Task))
+}
+
 func AddTask(o orm.Ormer, t *FTask) (string, error) {
 
 	t.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano(), 10)
