@@ -7,7 +7,8 @@ import (
 )
 
 type Room struct {
-	Name         string    `orm:"column(name)"`
+	Id           int       `orm:"column(id);auto"`
+	Name         string    `orm:"column(name);unique"`
 	Sequence     int       `orm:"column(sequence)"`
 	LastModified time.Time `orm:"column(last_modified)"`
 	Version      int       `orm:"version"`

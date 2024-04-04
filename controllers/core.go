@@ -208,12 +208,14 @@ func (c *CoreController) AddOrUpdateUser() {
 		logger.E("json.Unmarshal failed, err:", err)
 		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorParseJson, Msg: "Request body is not a valid json"}
 		c.ServeJSON()
+		return
 	}
 
 	if d.UserCode == "" {
 		logger.E("User code cannot be empty")
 		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorParameter, Msg: "User code cannot be empty"}
 		c.ServeJSON()
+		return
 	}
 
 	if c.CurrentUserDetail.Role != "admin" {
@@ -354,6 +356,7 @@ func (c *CoreController) ModifyPassword() {
 		logger.E("json.Unmarshal failed, err:", err)
 		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorParseJson, Msg: "Request body is not a valid json"}
 		c.ServeJSON()
+		return
 	}
 
 	//userCode := c.GetString("userCode")
