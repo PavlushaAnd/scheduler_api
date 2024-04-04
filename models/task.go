@@ -14,6 +14,7 @@ type Task struct {
 	Task_code    string    `orm:"column(task_code)"`
 	Title        string    `orm:"column(title)"`
 	UserCode     string    `orm:"column(user_code)"`
+	RoomName     string    `orm:"column(room_name)"`
 	Description  string    `orm:"column(description); null"`
 	Location     string    `orm:"column(location)"`
 	Repeatable   string    `orm:"column(repeatable)"`
@@ -30,6 +31,7 @@ type FTask struct {
 	Title        string
 	Description  string
 	UserCode     string
+	RoomName     string
 	Location     string
 	Repeatable   string
 	StartDate    string
@@ -135,6 +137,7 @@ func UpdateTask(tid string, tt *FTask) error {
 	updTask.EndDate = changeTask.EndDate
 	updTask.Location = changeTask.Location
 	updTask.UserCode = changeTask.UserCode
+	updTask.RoomName = changeTask.RoomName
 	updTask.LastModified = time.Now()
 	if (changeTask.Repeatable != "") && (!changeTask.RecEndDate.IsZero()) {
 		updTask.Repeatable = changeTask.Repeatable
@@ -188,6 +191,7 @@ func CascadeUpdateRecurrentTask(tid string, tt *FTask) (res *FTask, err error) {
 		updTask.Description = changeTask.Description
 		updTask.Location = changeTask.Location
 		updTask.UserCode = changeTask.UserCode
+		updTask.RoomName = changeTask.RoomName
 		updTask.LastModified = time.Now()
 		if sTimeDelta.Minutes() != 0 {
 			updTask.StartDate = updTask.StartDate.Add(sTimeDelta)
@@ -311,6 +315,7 @@ func ConvertTaskToBackend(t *FTask) (*Task, error) {
 	}
 
 	res.Title = t.Title
+	res.RoomName = t.RoomName
 	res.UserCode = t.UserCode
 	res.Repeatable = t.Repeatable
 	res.Description = t.Description
@@ -329,6 +334,7 @@ func ConvertTaskToFrontend(t *Task) *FTask {
 
 	res.RecEndDate = recEndDate
 	res.Title = t.Title
+	res.RoomName = t.RoomName
 	res.UserCode = t.UserCode
 	res.Repeatable = t.Repeatable
 	res.Description = t.Description
