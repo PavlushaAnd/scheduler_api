@@ -38,6 +38,10 @@ func init() {
 		beego.NSRouter("/room", &controllers.RoomController{}, "get:GetRoomList"),
 		beego.NSRouter("/room", &controllers.RoomController{}, "post:PostAndUpdRoom"),
 		beego.NSRouter("/room", &controllers.RoomController{}, "delete:DeleteRoom"),
+		//endpoints for projects
+		beego.NSRouter("/project", &controllers.ProjectController{}, "get:GetProjectList"),
+		beego.NSRouter("/project", &controllers.ProjectController{}, "post:PostAndUpdProject"),
+		beego.NSRouter("/project", &controllers.ProjectController{}, "delete:DeleteProject"),
 	)
 	beego.AddNamespace(ns)
 }

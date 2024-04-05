@@ -317,7 +317,7 @@ func (c *CoreController) DeleteUser() {
 	o := orm.NewOrmUsingDB("default")
 
 	dbUser, err := models.GetUser(delUser, o)
-	if err != nil {
+	if (err != nil) || (dbUser == nil) {
 		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: fmt.Sprintf("Cannot find user %s, err: - %s", delUser, err.Error())}
 		c.ServeJSON()
 		return

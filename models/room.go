@@ -11,7 +11,6 @@ type Room struct {
 	Name         string    `orm:"column(name);unique"`
 	Sequence     int       `orm:"column(sequence)"`
 	LastModified time.Time `orm:"column(last_modified)"`
-	Version      int       `orm:"version"`
 }
 
 func init() {
@@ -68,7 +67,7 @@ func GetRoom(roomName string, o orm.Ormer) (*Room, error) {
 
 	qs := o.QueryTable(new(Room))
 
-	err := qs.Filter("room_name", roomName).One(&room)
+	err := qs.Filter("name", roomName).One(&room)
 	if err != nil {
 		if err == orm.ErrNoRows {
 			return nil, nil

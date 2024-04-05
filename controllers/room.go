@@ -43,7 +43,6 @@ func (c *RoomController) PostAndUpdRoom() {
 		Name:         d.Name,
 		Sequence:     d.Sequence,
 		LastModified: time.Now(),
-		Version:      0,
 	}
 
 	if d.Id == 0 {
@@ -97,7 +96,7 @@ func (c *RoomController) DeleteRoom() {
 
 	o := orm.NewOrmUsingDB("default")
 	room, err := models.GetRoom(delRoom, o)
-	if err != nil {
+	if (err != nil) || (room == nil) {
 		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: fmt.Sprintf("Cannot find room %s, err: - %s", delRoom, err.Error())}
 		c.ServeJSON()
 		return
