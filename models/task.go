@@ -24,6 +24,8 @@ type Task struct {
 	RecStartDate time.Time `orm:"type(datetime); null; column(rec_start_date)"`
 	Version      int       `orm:"version"`
 	LastModified time.Time `orm:"column(last_modified)"`
+	CreatedAt    time.Time
+	CreatorCode  time.Time
 }
 
 type FTask struct {

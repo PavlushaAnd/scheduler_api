@@ -31,7 +31,7 @@ func init() {
 		beego.NSRouter("/user/userlist", &controllers.CoreController{}, "get:GetUserList"),
 		beego.NSRouter("/user/login", &controllers.CoreController{}, "post:Login"),
 		beego.NSRouter("/user/addorupd", &controllers.CoreController{}, "post:AddOrUpdateUser"),
-		beego.NSRouter("/user/delete", &controllers.CoreController{}, "delete:Delete"),
+		beego.NSRouter("/user/delete", &controllers.CoreController{}, "delete:DeleteUser"),
 		beego.NSRouter("/user/updpasswd", &controllers.CoreController{}, "post:ModifyPassword"),
 		beego.NSRouter("/user/rstpasswd", &controllers.CoreController{}, "post:ResetPassword"),
 		//endpoints for rooms
