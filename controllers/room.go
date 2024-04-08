@@ -39,13 +39,15 @@ func (c *RoomController) PostAndUpdRoom() {
 
 	o := orm.NewOrmUsingDB("default")
 
-	room := &models.Room{
-		Name:         d.Name,
-		Sequence:     d.Sequence,
-		LastModified: time.Now(),
-	}
-
 	if d.Id == 0 {
+		room := &models.Room{
+			Name:         d.Name,
+			Sequence:     d.Sequence,
+			CreatorCode:  c.CurrentUserDetail.UserCode,
+			CreatedAt:    time.Now(),
+			LastModified: time.Now(),
+		}
+
 		err = models.InsertRoom(room, o)
 		if err != nil {
 			c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: fmt.Sprintf("error on orm using - %s", err.Error())}
@@ -53,6 +55,13 @@ func (c *RoomController) PostAndUpdRoom() {
 			return
 		}
 	} else {
+		room := &models.Room{
+			Name:         d.Name,
+			Sequence:     d.Sequence,
+			EditorCode:   c.CurrentUserDetail.UserCode,
+			LastModified: time.Now(),
+		}
+
 		room.Id = d.Id
 		err = models.UpdateRoom(room, o)
 		if err != nil {

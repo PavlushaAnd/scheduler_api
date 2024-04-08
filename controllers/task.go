@@ -40,7 +40,6 @@ func (c *TaskController) Post() {
 	if err != nil {
 		c.Data["json"] = err.Error()
 	}
-	taskB.EditorCode = c.CurrentUserDetail.UserCode
 	taskB.CreatorCode = c.CurrentUserDetail.UserCode
 	taskB.CreatedAt = time.Now()
 	taskB.LastModified = time.Now()
