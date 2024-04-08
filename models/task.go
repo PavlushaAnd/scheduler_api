@@ -24,8 +24,9 @@ type Task struct {
 	RecStartDate time.Time `orm:"type(datetime); null; column(rec_start_date)"`
 	Version      int       `orm:"version"`
 	LastModified time.Time `orm:"column(last_modified)"`
-	CreatedAt    time.Time
-	CreatorCode  time.Time
+	CreatedAt    time.Time `orm:"column(created_at)"`
+	CreatorCode  string    `orm:"column(creator_code)"`
+	EditorCode   string    `orm:"column(editor_code)"`
 }
 
 type FTask struct {
@@ -47,25 +48,20 @@ func init() {
 	orm.RegisterModel(new(Task))
 }
 
-func AddTask(o orm.Ormer, t *FTask) (string, error) {
+func AddTask(o orm.Ormer, t *Task) (string, error) {
 
 	t.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-	tb, err := ConvertTaskToBackend(t)
-	if err != nil {
-		return "", err
-	}
 	if t.Repeatable != "" {
-		rt, recErr := CreateRecurrence(tb)
+		rt, recErr := CreateRecurrence(t, t.CreatorCode)
 		if recErr != nil {
 			return "", recErr
 		}
-		tb.LastModified = time.Now()
-		_, insertErr := o.Insert(tb)
+		_, insertErr := o.Insert(t)
 		if insertErr != nil {
 			return "", insertErr
 		}
 		for i := range rt {
-			if (rt[i].StartDate != tb.StartDate) && (rt[i].EndDate != tb.EndDate) {
+			if (rt[i].StartDate != t.StartDate) && (rt[i].EndDate != t.EndDate) {
 				_, insertErr := o.Insert(rt[i])
 				if insertErr != nil {
 					return "", insertErr
@@ -73,14 +69,14 @@ func AddTask(o orm.Ormer, t *FTask) (string, error) {
 			}
 		}
 	} else {
-		tb.LastModified = time.Now()
-		_, insertErr := o.Insert(tb)
+		t.LastModified = time.Now()
+		_, insertErr := o.Insert(t)
 		if insertErr != nil {
 			return "", insertErr
 		}
 
 	}
-	return tb.Task_code, nil
+	return t.Task_code, nil
 }
 
 func GetTask(tid string) (*Task, error) {
@@ -119,7 +115,7 @@ func GetAllTasks() ([]*FTask, error) {
 	return tf, nil
 }
 
-func UpdateTask(tid string, tt *FTask) error {
+func UpdateTask(tid string, tt *FTask, code string) error {
 	o := orm.NewOrm()
 
 	changeTask, convertErr := ConvertTaskToBackend(tt)
@@ -141,6 +137,7 @@ func UpdateTask(tid string, tt *FTask) error {
 	updTask.UserCode = changeTask.UserCode
 	updTask.RoomName = changeTask.RoomName
 	updTask.LastModified = time.Now()
+	updTask.EditorCode = code
 	if (changeTask.Repeatable != "") && (!changeTask.RecEndDate.IsZero()) {
 		updTask.Repeatable = changeTask.Repeatable
 		updTask.RecEndDate = changeTask.RecEndDate
@@ -155,7 +152,7 @@ func UpdateTask(tid string, tt *FTask) error {
 		}
 		//creating recurrent tasks and deleting entry duplicate
 		if (changeTask.Repeatable != "") && (!changeTask.RecEndDate.IsZero()) {
-			tid, _ := AddTask(o, tt)
+			tid, _ := AddTask(o, updTask)
 			DeleteTask(tid)
 		}
 
@@ -167,7 +164,7 @@ func UpdateTask(tid string, tt *FTask) error {
 	return nil
 }
 
-func CascadeUpdateRecurrentTask(tid string, tt *FTask) (res *FTask, err error) {
+func CascadeUpdateRecurrentTask(tid string, tt *FTask, code string) (res *FTask, err error) {
 	o := orm.NewOrm()
 
 	updTask := new(Task)
@@ -195,6 +192,8 @@ func CascadeUpdateRecurrentTask(tid string, tt *FTask) (res *FTask, err error) {
 		updTask.UserCode = changeTask.UserCode
 		updTask.RoomName = changeTask.RoomName
 		updTask.LastModified = time.Now()
+		updTask.EditorCode = code
+
 		if sTimeDelta.Minutes() != 0 {
 			updTask.StartDate = updTask.StartDate.Add(sTimeDelta)
 
@@ -349,7 +348,7 @@ func ConvertTaskToFrontend(t *Task) *FTask {
 	return res
 }
 
-func CreateRecurrence(t *Task) (recTaskList []*Task, recError error) {
+func CreateRecurrence(t *Task, code string) (recTaskList []*Task, recError error) {
 	var (
 		recStartDate, recEndDate time.Time
 	)
@@ -363,6 +362,7 @@ func CreateRecurrence(t *Task) (recTaskList []*Task, recError error) {
 			task.StartDate = recStartDate
 			task.EndDate = recEndDate
 			task.LastModified = time.Now()
+			task.EditorCode = code
 			task.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano()+int64(i), 10)
 			recTaskList = append(recTaskList, &task)
 		}
@@ -376,6 +376,7 @@ func CreateRecurrence(t *Task) (recTaskList []*Task, recError error) {
 			task.EndDate = recEndDate
 			task.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano()+int64(i), 10)
 			task.LastModified = time.Now()
+			task.EditorCode = code
 			recTaskList = append(recTaskList, &task)
 		}
 	case "FREQ=MONTHLY":
@@ -387,6 +388,7 @@ func CreateRecurrence(t *Task) (recTaskList []*Task, recError error) {
 			task.StartDate = recStartDate
 			task.EndDate = recEndDate
 			task.LastModified = time.Now()
+			task.EditorCode = code
 			task.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano()+int64(i), 10)
 			recTaskList = append(recTaskList, &task)
 		}
@@ -399,6 +401,7 @@ func CreateRecurrence(t *Task) (recTaskList []*Task, recError error) {
 			task.StartDate = recStartDate
 			task.EndDate = recEndDate
 			task.LastModified = time.Now()
+			task.EditorCode = code
 			task.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano()+int64(i), 10)
 			recTaskList = append(recTaskList, &task)
 		}
