@@ -14,7 +14,6 @@ type Project struct {
 	CreatorCode  string    `orm:"column(creator_code)"`
 	EditorCode   string    `orm:"column(editor_code)"`
 	CreatedAt    time.Time `orm:"column(created_at)"`
-	DeletedAt    time.Time `orm:"column(deleted_at);null"`
 	LastModified time.Time `orm:"column(last_modified)"`
 }
 

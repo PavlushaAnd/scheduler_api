@@ -42,6 +42,10 @@ func init() {
 		beego.NSRouter("/project", &controllers.ProjectController{}, "get:GetProjectList"),
 		beego.NSRouter("/project", &controllers.ProjectController{}, "post:PostAndUpdProject"),
 		beego.NSRouter("/project", &controllers.ProjectController{}, "delete:DeleteProject"),
+		//endpoints for clients
+		beego.NSRouter("/client", &controllers.ClientController{}, "get:GetClientList"),
+		beego.NSRouter("/client", &controllers.ClientController{}, "post:PostAndUpdClient"),
+		beego.NSRouter("/client", &controllers.ClientController{}, "delete:DeleteClient"),
 	)
 	beego.AddNamespace(ns)
 }
