@@ -9,6 +9,7 @@ import (
 type Project struct {
 	Id           int       `orm:"column(id);auto"`
 	Name         string    `orm:"column(name);unique"`
+	Inactive     bool      `orm:"column(inactive)"`
 	Sequence     int       `orm:"column(sequence)"`
 	CreatorCode  string    `orm:"column(creator_code)"`
 	EditorCode   string    `orm:"column(editor_code)"`
@@ -31,7 +32,7 @@ func InsertProject(project *Project, o orm.Ormer) error {
 }
 
 func UpdateProject(project *Project, o orm.Ormer) error {
-	_, err := o.Update(project, "name", "sequence", "editor_code", "last_modified")
+	_, err := o.Update(project, "name", "inactive", "sequence", "editor_code", "last_modified")
 	if err != nil {
 		return err
 	}

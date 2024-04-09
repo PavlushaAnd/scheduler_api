@@ -19,6 +19,7 @@ type RoomController struct {
 type RoomView struct {
 	Id       int    `json:"room_id"`
 	Name     string `json:"room_name"`
+	Inactive bool   `json:"room_inactive"`
 	Sequence int    `json:"room_sequence"`
 }
 
@@ -42,6 +43,7 @@ func (c *RoomController) PostAndUpdRoom() {
 	if d.Id == 0 {
 		room := &models.Room{
 			Name:         d.Name,
+			Inactive:     d.Inactive,
 			Sequence:     d.Sequence,
 			CreatorCode:  c.CurrentUserDetail.UserCode,
 			CreatedAt:    time.Now(),
@@ -57,6 +59,7 @@ func (c *RoomController) PostAndUpdRoom() {
 	} else {
 		room := &models.Room{
 			Name:         d.Name,
+			Inactive:     d.Inactive,
 			Sequence:     d.Sequence,
 			EditorCode:   c.CurrentUserDetail.UserCode,
 			LastModified: time.Now(),
@@ -90,6 +93,7 @@ func (c *RoomController) GetRoomList() {
 		roomView = append(roomView, &RoomView{
 			Name:     v.Name,
 			Sequence: v.Sequence,
+			Inactive: v.Inactive,
 			Id:       v.Id,
 		})
 	}

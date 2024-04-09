@@ -20,6 +20,7 @@ type ProjectController struct {
 type ProjectView struct {
 	Id         int    `json:"project_id"`
 	Name       string `json:"project_name"`
+	Inactive   bool   `json:"project_inactive"`
 	Sequence   int    `json:"project_sequence"`
 	ClientCode string `json:"client_code"`
 }
@@ -44,6 +45,7 @@ func (c *ProjectController) PostAndUpdProject() {
 	if d.Id == 0 {
 		project := &models.Project{
 			Name:         fmt.Sprintf("%s_%s", d.ClientCode, d.Name),
+			Inactive:     d.Inactive,
 			Sequence:     d.Sequence,
 			CreatorCode:  c.CurrentUserDetail.UserCode,
 			CreatedAt:    time.Now(),
@@ -58,6 +60,7 @@ func (c *ProjectController) PostAndUpdProject() {
 	} else {
 		project := &models.Project{
 			Name:         fmt.Sprintf("%s_%s", d.ClientCode, d.Name),
+			Inactive:     d.Inactive,
 			Sequence:     d.Sequence,
 			EditorCode:   c.CurrentUserDetail.UserCode,
 			LastModified: time.Now(),
@@ -91,6 +94,7 @@ func (c *ProjectController) GetProjectList() {
 		projectView = append(projectView, &ProjectView{
 			Name:       projectName[1],
 			ClientCode: projectName[0],
+			Inactive:   v.Inactive,
 			Sequence:   v.Sequence,
 			Id:         v.Id,
 		})

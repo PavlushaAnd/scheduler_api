@@ -10,6 +10,7 @@ type Room struct {
 	Id           int       `orm:"column(id);auto"`
 	Name         string    `orm:"column(name);unique"`
 	Sequence     int       `orm:"column(sequence)"`
+	Inactive     bool      `orm:"column(inactive)"`
 	CreatorCode  string    `orm:"column(creator_code)"`
 	EditorCode   string    `orm:"column(editor_code)"`
 	CreatedAt    time.Time `orm:"column(created_at)"`
@@ -31,7 +32,7 @@ func InsertRoom(room *Room, o orm.Ormer) error {
 }
 
 func UpdateRoom(room *Room, o orm.Ormer) error {
-	_, err := o.Update(room, "name", "sequence", "editor_code", "last_modified")
+	_, err := o.Update(room, "name", "inactive", "sequence", "editor_code", "last_modified")
 	if err != nil {
 		return err
 	}
