@@ -239,24 +239,27 @@ func (c *CoreController) AddOrUpdateUser() {
 
 	o := orm.NewOrmUsingDB("default")
 
-	user := models.User{
-		UserCode:          d.UserCode,
-		UserName:          d.UserName,
-		PositionCode:      d.PositionCode,
-		EmailAddress:      d.EmailAddress,
-		PhoneNo:           d.PhoneNo,
-		HasUploadedPage:   d.HasUploadedPage,
-		HasRecognisedPage: d.HasRecognisedPage,
-		HasConfirmedPage:  d.HasConfirmedPage,
-		HasPostedPage:     d.HasPostedPage,
-		Inactive:          d.Inactive,
-		Role:              d.Role,
-		ColorText:         d.ColorText,
-		ColorBackground:   d.ColorBackground,
-		Password:          utils.GetMd5StrWithSalt(d.Password, d.UserCode),
-	}
 	//base64.StdEncoding.EncodeToString([]byte(d.Password))
 	if d.Id == 0 {
+		user := models.User{
+			UserCode:          d.UserCode,
+			UserName:          d.UserName,
+			PositionCode:      d.PositionCode,
+			EmailAddress:      d.EmailAddress,
+			PhoneNo:           d.PhoneNo,
+			HasUploadedPage:   d.HasUploadedPage,
+			HasRecognisedPage: d.HasRecognisedPage,
+			HasConfirmedPage:  d.HasConfirmedPage,
+			HasPostedPage:     d.HasPostedPage,
+			Inactive:          d.Inactive,
+			Role:              d.Role,
+			ColorText:         d.ColorText,
+			ColorBackground:   d.ColorBackground,
+			Password:          utils.GetMd5StrWithSalt(d.Password, d.UserCode),
+			CreatedAt:         time.Now(),
+			LastModified:      time.Now(),
+			CreatorCode:       c.CurrentUserDetail.Role,
+		}
 		//add to db
 		if d.Password == "" {
 			c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorParameter, Msg: "Password cannot be empty"}
@@ -271,6 +274,24 @@ func (c *CoreController) AddOrUpdateUser() {
 			return
 		}
 	} else {
+		user := models.User{
+			UserCode:          d.UserCode,
+			UserName:          d.UserName,
+			PositionCode:      d.PositionCode,
+			EmailAddress:      d.EmailAddress,
+			PhoneNo:           d.PhoneNo,
+			HasUploadedPage:   d.HasUploadedPage,
+			HasRecognisedPage: d.HasRecognisedPage,
+			HasConfirmedPage:  d.HasConfirmedPage,
+			HasPostedPage:     d.HasPostedPage,
+			Inactive:          d.Inactive,
+			Role:              d.Role,
+			ColorText:         d.ColorText,
+			ColorBackground:   d.ColorBackground,
+			Password:          utils.GetMd5StrWithSalt(d.Password, d.UserCode),
+			LastModified:      time.Now(),
+			EditorCode:        c.CurrentUserDetail.Role,
+		}
 		//update to db
 		user.Id = d.Id
 		err = models.UpdateUserWithoutPwd(&user, o)
@@ -405,7 +426,9 @@ func (c *CoreController) ModifyPassword() {
 	}
 
 	dbUser.Password = utils.GetMd5StrWithSalt(d.NewPwd, d.UserCode) //base64.StdEncoding.EncodeToString([]byte(d.NewPwd))
-	err = models.UpdateUser(dbUser, o)
+	dbUser.EditorCode = c.CurrentUserDetail.Role
+	dbUser.LastModified = time.Now()
+	err = models.UpdateUserPwd(dbUser, o)
 	if err != nil {
 		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: fmt.Sprintf("error on orm using - %s", err.Error())}
 		c.ServeJSON()
@@ -469,7 +492,9 @@ func (c *CoreController) ResetPassword() {
 	}
 
 	dbUser.Password = utils.GetMd5StrWithSalt(newPassword, dbUser.UserCode) //base64.StdEncoding.EncodeToString([]byte(newPassword))
-	err = models.UpdateUser(dbUser, o)
+	dbUser.EditorCode = c.CurrentUserDetail.Role
+	dbUser.LastModified = time.Now()
+	err = models.UpdateUserPwd(dbUser, o)
 	if err != nil {
 		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: fmt.Sprintf("error on orm using - %s", err.Error())}
 		c.ServeJSON()

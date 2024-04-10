@@ -2,26 +2,31 @@ package models
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/beego/beego/v2/client/orm"
 )
 
 type User struct {
-	Id                int    `orm:"column(id);auto"`
-	UserCode          string `orm:"column(user_code)"`
-	UserName          string `orm:"column(user_name)"`
-	PositionCode      string `orm:"column(position_code)"`
-	Inactive          bool   `orm:"column(inactive)"`
-	PhoneNo           string `orm:"column(phone_no)"`
-	EmailAddress      string `orm:"column(email_address)"`
-	HasUploadedPage   bool   `orm:"column(has_uploaded_page)"`
-	HasRecognisedPage bool   `orm:"column(has_recognised_page)"`
-	HasConfirmedPage  bool   `orm:"column(has_confirmed_page)"`
-	HasPostedPage     bool   `orm:"column(has_posted_page)"`
-	Password          string `orm:"column(password)"`
-	Role              string `orm:"column(role)"`
-	ColorText         string `orm:"column(color_text)"`
-	ColorBackground   string `orm:"column(color_background)"`
+	Id                int       `orm:"column(id);auto"`
+	UserCode          string    `orm:"column(user_code)"`
+	UserName          string    `orm:"column(user_name)"`
+	PositionCode      string    `orm:"column(position_code)"`
+	Inactive          bool      `orm:"column(inactive)"`
+	PhoneNo           string    `orm:"column(phone_no)"`
+	EmailAddress      string    `orm:"column(email_address)"`
+	HasUploadedPage   bool      `orm:"column(has_uploaded_page)"`
+	HasRecognisedPage bool      `orm:"column(has_recognised_page)"`
+	HasConfirmedPage  bool      `orm:"column(has_confirmed_page)"`
+	HasPostedPage     bool      `orm:"column(has_posted_page)"`
+	Password          string    `orm:"column(password)"`
+	Role              string    `orm:"column(role)"`
+	ColorText         string    `orm:"column(color_text)"`
+	ColorBackground   string    `orm:"column(color_background)"`
+	LastModified      time.Time `orm:"column(last_modified)"`
+	CreatedAt         time.Time `orm:"column(created_at)"`
+	CreatorCode       string    `orm:"column(creator_code)"`
+	EditorCode        string    `orm:"column(editor_code)"`
 }
 
 func (t *User) TableName() string {
@@ -56,8 +61,8 @@ func InsertUser(user *User, o orm.Ormer) error {
 	return nil
 }
 
-func UpdateUser(user *User, o orm.Ormer) error {
-	_, err := o.Update(user)
+func UpdateUserPwd(user *User, o orm.Ormer) error {
+	_, err := o.Update(user, "password", "editor_code", "last_modified")
 	if err != nil {
 		return err
 	}
@@ -66,7 +71,7 @@ func UpdateUser(user *User, o orm.Ormer) error {
 }
 
 func UpdateUserWithoutPwd(user *User, o orm.Ormer) error {
-	_, err := o.Update(user, "user_name", "phone_no", "email_address", "inactive", "role", "has_uploaded_page", "has_recognised_page", "has_confirmed_page", "has_posted_page")
+	_, err := o.Update(user, "user_name", "phone_no", "email_address", "inactive", "role", "has_uploaded_page", "has_recognised_page", "has_confirmed_page", "has_posted_page", "editor_code", "last_modified")
 	if err != nil {
 		return err
 	}
