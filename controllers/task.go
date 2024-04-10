@@ -227,9 +227,9 @@ func (c *TaskController) PutCascade() {
 		} else {
 			c.Data["json"] = tt
 		}
+	} else {
+		c.Data["json"] = "no task code in the request"
 	}
-
-	c.Data["json"] = "no task code in the request"
 
 	c.ServeJSON()
 }
