@@ -46,6 +46,10 @@ func init() {
 		beego.NSRouter("/client", &controllers.ClientController{}, "get:GetClientList"),
 		beego.NSRouter("/client", &controllers.ClientController{}, "post:PostAndUpdClient"),
 		beego.NSRouter("/client", &controllers.ClientController{}, "delete:DeleteClient"),
+		//endpoints for positions
+		beego.NSRouter("/position", &controllers.PositionController{}, "get:GetPositionList"),
+		beego.NSRouter("/position", &controllers.PositionController{}, "post:PostAndUpdPosition"),
+		beego.NSRouter("/position", &controllers.PositionController{}, "delete:DeletePosition"),
 	)
 	beego.AddNamespace(ns)
 }

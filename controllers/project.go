@@ -107,7 +107,7 @@ func (c *ProjectController) GetProjectList() {
 func (c *ProjectController) DeleteProject() {
 	c.RequireLogin()
 
-	delProject := fmt.Sprintf("%s_%s", c.GetString("project_code"), c.GetString("project_name"))
+	delProject := fmt.Sprintf("%s_%s", c.GetString("client_code"), c.GetString("project_name"))
 
 	o := orm.NewOrmUsingDB("default")
 	project, err := models.GetProject(delProject, o)

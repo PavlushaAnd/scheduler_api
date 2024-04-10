@@ -67,12 +67,12 @@ func ListClient(clientName string, o orm.Ormer) ([]*Client, error) {
 	return client, nil
 }
 
-func GetClient(clientName string, o orm.Ormer) (*Client, error) {
+func GetClient(clientCode string, o orm.Ormer) (*Client, error) {
 	client := Client{}
 
 	qs := o.QueryTable(new(Client))
 
-	err := qs.Filter("name", clientName).One(&client)
+	err := qs.Filter("code", clientCode).One(&client)
 	if err != nil {
 		if err == orm.ErrNoRows {
 			return nil, nil

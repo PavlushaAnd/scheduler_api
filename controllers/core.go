@@ -157,6 +157,7 @@ func (c *CoreController) GetUserList() {
 		usrArr = append(usrArr, core.UserDetails{
 			Id:                usr.Id,
 			UserCode:          usr.UserCode,
+			PositionCode:      usr.PositionCode,
 			UserName:          usr.UserName,
 			EmailAddress:      usr.EmailAddress,
 			PhoneNo:           usr.PhoneNo,
@@ -227,6 +228,7 @@ func (c *CoreController) AddOrUpdateUser() {
 			d.Inactive != c.CurrentUserDetail.Inactive ||
 			d.UserCode != c.CurrentUserDetail.UserCode ||
 			d.Role != c.CurrentUserDetail.Role ||
+			d.PositionCode != c.CurrentUserDetail.PositionCode ||
 			d.ColorBackground != c.CurrentUserDetail.ColorBackground ||
 			d.ColorText != c.CurrentUserDetail.ColorText {
 			c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorForbidden, Msg: "error - permission denied"}
@@ -240,6 +242,7 @@ func (c *CoreController) AddOrUpdateUser() {
 	user := models.User{
 		UserCode:          d.UserCode,
 		UserName:          d.UserName,
+		PositionCode:      d.PositionCode,
 		EmailAddress:      d.EmailAddress,
 		PhoneNo:           d.PhoneNo,
 		HasUploadedPage:   d.HasUploadedPage,
