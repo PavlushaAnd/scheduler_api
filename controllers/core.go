@@ -157,6 +157,7 @@ func (c *CoreController) GetUserList() {
 		usrArr = append(usrArr, core.UserDetails{
 			Id:                usr.Id,
 			UserCode:          usr.UserCode,
+			PositionCode:      usr.PositionCode,
 			UserName:          usr.UserName,
 			EmailAddress:      usr.EmailAddress,
 			PhoneNo:           usr.PhoneNo,
@@ -208,12 +209,14 @@ func (c *CoreController) AddOrUpdateUser() {
 		logger.E("json.Unmarshal failed, err:", err)
 		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorParseJson, Msg: "Request body is not a valid json"}
 		c.ServeJSON()
+		return
 	}
 
 	if d.UserCode == "" {
 		logger.E("User code cannot be empty")
 		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorParameter, Msg: "User code cannot be empty"}
 		c.ServeJSON()
+		return
 	}
 
 	if c.CurrentUserDetail.Role != "admin" {
@@ -225,6 +228,7 @@ func (c *CoreController) AddOrUpdateUser() {
 			d.Inactive != c.CurrentUserDetail.Inactive ||
 			d.UserCode != c.CurrentUserDetail.UserCode ||
 			d.Role != c.CurrentUserDetail.Role ||
+			d.PositionCode != c.CurrentUserDetail.PositionCode ||
 			d.ColorBackground != c.CurrentUserDetail.ColorBackground ||
 			d.ColorText != c.CurrentUserDetail.ColorText {
 			c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorForbidden, Msg: "error - permission denied"}
@@ -238,6 +242,7 @@ func (c *CoreController) AddOrUpdateUser() {
 	user := models.User{
 		UserCode:          d.UserCode,
 		UserName:          d.UserName,
+		PositionCode:      d.PositionCode,
 		EmailAddress:      d.EmailAddress,
 		PhoneNo:           d.PhoneNo,
 		HasUploadedPage:   d.HasUploadedPage,
@@ -315,7 +320,7 @@ func (c *CoreController) DeleteUser() {
 	o := orm.NewOrmUsingDB("default")
 
 	dbUser, err := models.GetUser(delUser, o)
-	if err != nil {
+	if (err != nil) || (dbUser == nil) {
 		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: fmt.Sprintf("Cannot find user %s, err: - %s", delUser, err.Error())}
 		c.ServeJSON()
 		return
@@ -354,6 +359,7 @@ func (c *CoreController) ModifyPassword() {
 		logger.E("json.Unmarshal failed, err:", err)
 		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorParseJson, Msg: "Request body is not a valid json"}
 		c.ServeJSON()
+		return
 	}
 
 	//userCode := c.GetString("userCode")

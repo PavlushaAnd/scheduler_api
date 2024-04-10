@@ -6,6 +6,7 @@ import (
 	"scheduler_api/core"
 	"scheduler_api/models"
 	"scheduler_api/utils"
+	"time"
 
 	"github.com/beego/beego/v2/client/orm"
 )
@@ -35,7 +36,14 @@ func (c *TaskController) Post() {
 	if (c.CurrentUserDetail.Role != "admin") && (c.CurrentUserDetail.UserCode != task.UserCode) {
 		task.UserCode = c.CurrentUserDetail.UserCode
 	}
-	_, addErr := models.AddTask(o, task)
+	taskB, err := models.ConvertTaskToBackend(task)
+	if err != nil {
+		c.Data["json"] = err.Error()
+	}
+	taskB.CreatorCode = c.CurrentUserDetail.UserCode
+	taskB.CreatedAt = time.Now()
+	taskB.LastModified = time.Now()
+	_, addErr := models.AddTask(o, taskB)
 	if addErr != nil {
 		c.Data["json"] = addErr.Error()
 	} else {
@@ -129,7 +137,8 @@ func (c *TaskController) Put() {
 		if (c.CurrentUserDetail.Role != "admin") && (c.CurrentUserDetail.UserCode != task.UserCode) {
 			task.UserCode = c.CurrentUserDetail.UserCode
 		}
-		err := models.UpdateTask(tid, &task)
+		code := c.CurrentUserDetail.UserCode
+		err := models.UpdateTask(tid, &task, code)
 		if err != nil {
 			c.Data["json"] = err.Error()
 		}
@@ -221,7 +230,8 @@ func (c *TaskController) PutCascade() {
 		if (c.CurrentUserDetail.Role != "admin") && (c.CurrentUserDetail.UserCode != task.UserCode) {
 			task.UserCode = c.CurrentUserDetail.UserCode
 		}
-		tt, err := models.CascadeUpdateRecurrentTask(tid, &task)
+		code := c.CurrentUserDetail.UserCode
+		tt, err := models.CascadeUpdateRecurrentTask(tid, &task, code)
 		if err != nil {
 			c.Data["json"] = err.Error()
 		} else {

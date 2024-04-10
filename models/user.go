@@ -10,6 +10,7 @@ type User struct {
 	Id                int    `orm:"column(id);auto"`
 	UserCode          string `orm:"column(user_code)"`
 	UserName          string `orm:"column(user_name)"`
+	PositionCode      string `orm:"column(position_code)"`
 	Inactive          bool   `orm:"column(inactive)"`
 	PhoneNo           string `orm:"column(phone_no)"`
 	EmailAddress      string `orm:"column(email_address)"`

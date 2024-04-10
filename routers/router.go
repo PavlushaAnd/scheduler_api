@@ -31,9 +31,25 @@ func init() {
 		beego.NSRouter("/user/userlist", &controllers.CoreController{}, "get:GetUserList"),
 		beego.NSRouter("/user/login", &controllers.CoreController{}, "post:Login"),
 		beego.NSRouter("/user/addorupd", &controllers.CoreController{}, "post:AddOrUpdateUser"),
-		beego.NSRouter("/user/delete", &controllers.CoreController{}, "delete:Delete"),
+		beego.NSRouter("/user/delete", &controllers.CoreController{}, "delete:DeleteUser"),
 		beego.NSRouter("/user/updpasswd", &controllers.CoreController{}, "post:ModifyPassword"),
 		beego.NSRouter("/user/rstpasswd", &controllers.CoreController{}, "post:ResetPassword"),
+		//endpoints for rooms
+		beego.NSRouter("/room", &controllers.RoomController{}, "get:GetRoomList"),
+		beego.NSRouter("/room", &controllers.RoomController{}, "post:PostAndUpdRoom"),
+		beego.NSRouter("/room", &controllers.RoomController{}, "delete:DeleteRoom"),
+		//endpoints for projects
+		beego.NSRouter("/project", &controllers.ProjectController{}, "get:GetProjectList"),
+		beego.NSRouter("/project", &controllers.ProjectController{}, "post:PostAndUpdProject"),
+		beego.NSRouter("/project", &controllers.ProjectController{}, "delete:DeleteProject"),
+		//endpoints for clients
+		beego.NSRouter("/client", &controllers.ClientController{}, "get:GetClientList"),
+		beego.NSRouter("/client", &controllers.ClientController{}, "post:PostAndUpdClient"),
+		beego.NSRouter("/client", &controllers.ClientController{}, "delete:DeleteClient"),
+		//endpoints for positions
+		beego.NSRouter("/position", &controllers.PositionController{}, "get:GetPositionList"),
+		beego.NSRouter("/position", &controllers.PositionController{}, "post:PostAndUpdPosition"),
+		beego.NSRouter("/position", &controllers.PositionController{}, "delete:DeletePosition"),
 	)
 	beego.AddNamespace(ns)
 }

@@ -14,6 +14,7 @@ import (
 type UserDetailsWithPwd struct {
 	Id                int    `json:"id"`
 	UserCode          string `json:"user_code"`
+	PositionCode      string `json:"position_code"`
 	UserName          string `json:"user_name"`
 	Inactive          bool   `json:"inactive"`
 	PhoneNo           string `json:"phone_no"`
@@ -31,6 +32,7 @@ type UserDetailsWithPwd struct {
 type UserDetails struct {
 	Id                int    `json:"id"`
 	UserCode          string `json:"user_code"`
+	PositionCode      string `json:"position_code"`
 	UserName          string `json:"user_name"`
 	Inactive          bool   `json:"inactive"`
 	PhoneNo           string `json:"phone_no"`
@@ -148,6 +150,7 @@ func (c *Core) GetUserDetailsWithPwd(userCode string) (*UserDetailsWithPwd, erro
 	UserDetails.Id = userDB.Id
 	UserDetails.UserCode = userDB.UserCode
 	UserDetails.UserName = userDB.UserName
+	UserDetails.PositionCode = userDB.PositionCode
 	UserDetails.Inactive = userDB.Inactive
 	UserDetails.PhoneNo = userDB.PhoneNo
 	UserDetails.EmailAddress = userDB.EmailAddress
@@ -177,6 +180,7 @@ func (c *Core) GetUserDetails(userCode string) (*UserDetails, error) {
 	UserDetails := UserDetails{}
 	UserDetails.Id = userDetailsWithPwd.Id
 	UserDetails.UserCode = userDetailsWithPwd.UserCode
+	UserDetails.PositionCode = userDetailsWithPwd.PositionCode
 	UserDetails.UserName = userDetailsWithPwd.UserName
 	UserDetails.Inactive = userDetailsWithPwd.Inactive
 	UserDetails.PhoneNo = userDetailsWithPwd.PhoneNo
