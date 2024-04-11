@@ -34,6 +34,7 @@ type UserDetails struct {
 	UserCode          string `json:"user_code"`
 	PositionCode      string `json:"position_code"`
 	UserName          string `json:"user_name"`
+	IsOnline          bool   `json:"online"`
 	Inactive          bool   `json:"inactive"`
 	PhoneNo           string `json:"phone_no"`
 	EmailAddress      string `json:"email_address"`
@@ -280,6 +281,16 @@ func (c *Core) UpdateUserTokenExpireTimeInCache(userToken string) error {
 	}
 
 	return nil
+}
+
+func (c *Core) GetUserTokenExpireTimeFromCache(userToken string) (int64, error) {
+	if TOKENCACHE != nil {
+		tmp, _ := TOKENCACHE.Get(c.Ctx.Request.Context(), userToken)
+		if tmp != nil {
+			return tmp.(int64), nil
+		}
+	}
+	return 0, fmt.Errorf("token is empty")
 }
 
 // RequireLogin is used by majority of APIs

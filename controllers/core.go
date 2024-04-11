@@ -154,11 +154,32 @@ func (c *CoreController) GetUserList() {
 
 	usrArr := make([]core.UserDetails, 0)
 	for _, usr := range userList {
+		var isOnline bool
+		lastLoginToken, err := c.GetUserTokenFromDB(usr.UserCode)
+		if err != nil {
+			c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: err.Error()}
+			c.ServeJSON()
+			return
+		}
+		if lastLoginToken != "" {
+			exptime, err := c.GetUserTokenExpireTimeFromCache(lastLoginToken)
+			if err != nil {
+				c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: err.Error()}
+				c.ServeJSON()
+				return
+			}
+			if diff := exptime - time.Now().Unix(); diff > int64(2700) {
+				isOnline = true
+			} else {
+				isOnline = false
+			}
+		}
 		usrArr = append(usrArr, core.UserDetails{
 			Id:                usr.Id,
 			UserCode:          usr.UserCode,
 			PositionCode:      usr.PositionCode,
 			UserName:          usr.UserName,
+			IsOnline:          isOnline,
 			EmailAddress:      usr.EmailAddress,
 			PhoneNo:           usr.PhoneNo,
 			HasUploadedPage:   usr.HasUploadedPage,
