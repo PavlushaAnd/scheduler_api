@@ -168,7 +168,6 @@ func (c *CoreController) GetUserList() {
 				c.ServeJSON()
 				return
 			}
-
 			if diff := exptime - time.Now().Unix(); diff > int64(2700) {
 				isOnline = true
 			}
