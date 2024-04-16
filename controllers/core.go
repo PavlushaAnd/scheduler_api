@@ -277,7 +277,7 @@ func (c *CoreController) AddOrUpdateUser() {
 			Password:          utils.GetMd5StrWithSalt(d.Password, d.UserCode),
 			CreatedAt:         time.Now(),
 			LastModified:      time.Now(),
-			CreatorCode:       c.CurrentUserDetail.Role,
+			CreatorCode:       c.CurrentUserDetail.UserCode,
 		}
 		//add to db
 		if d.Password == "" {
@@ -309,7 +309,7 @@ func (c *CoreController) AddOrUpdateUser() {
 			ColorBackground:   d.ColorBackground,
 			Password:          utils.GetMd5StrWithSalt(d.Password, d.UserCode),
 			LastModified:      time.Now(),
-			EditorCode:        c.CurrentUserDetail.Role,
+			EditorCode:        c.CurrentUserDetail.PositionCode,
 		}
 		//update to db
 		user.Id = d.Id

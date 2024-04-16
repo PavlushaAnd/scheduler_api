@@ -26,6 +26,16 @@ type ProjectView struct {
 }
 
 // swagger comments
+// @Title add or update project
+// @tags projects
+// @Description add or update project
+// @Param	projectDetail		body		ProjectView	true		"project detail"
+// @Success 200 {object} utils.JSONStruct
+// @Failure 400
+// @router /project [post]
+// @Security ApiKeyAuth
+// @SecurityDefinition BearerAuth api_key Authorization header with JWT token
+// @Param Authorization header string false "With the bearer in front"
 func (c *ProjectController) PostAndUpdProject() {
 	c.RequireLogin()
 
@@ -78,6 +88,15 @@ func (c *ProjectController) PostAndUpdProject() {
 }
 
 // swagger comment
+// @Title Get project list
+// @tags projects
+// @Description get project list
+// @Success 200 {object} utils.JSONStruct{data=ProjectView}
+// @Failure 400
+// @router /project [get]
+// @Security ApiKeyAuth
+// @SecurityDefinition BearerAuth api_key Authorization header with JWT token
+// @Param Authorization header string true "With the bearer in front"
 func (c *ProjectController) GetProjectList() {
 	c.RequireLogin()
 
@@ -104,6 +123,17 @@ func (c *ProjectController) GetProjectList() {
 }
 
 // swagger comment
+// @Title  delete project
+// @tags projects
+// @Description delete project
+// @Param	client_code		query		string	true		"client code"
+// @Param	project_name		query		string	true		"project name"
+// @Success 200 {object} utils.JSONStruct
+// @Failure 400
+// @router /project [delete]
+// @Security ApiKeyAuth
+// @SecurityDefinition BearerAuth api_key Authorization header with JWT token
+// @Param Authorization header string true "With the bearer in front"
 func (c *ProjectController) DeleteProject() {
 	c.RequireLogin()
 

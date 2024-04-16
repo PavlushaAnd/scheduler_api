@@ -26,6 +26,16 @@ type PositionView struct {
 }
 
 // swagger comments
+// @Title add or update position
+// @tags positions
+// @Description add or update position
+// @Param	positionDetail		body		PositionView	true		"position detail"
+// @Success 200 {object} utils.JSONStruct
+// @Failure 400
+// @router /position [post]
+// @Security ApiKeyAuth
+// @SecurityDefinition BearerAuth api_key Authorization header with JWT token
+// @Param Authorization header string false "With the bearer in front"
 func (c *PositionController) PostAndUpdPosition() {
 	c.RequireLogin()
 
@@ -84,6 +94,15 @@ func (c *PositionController) PostAndUpdPosition() {
 }
 
 // swagger comment
+// @Title Get position list
+// @tags positions
+// @Description get position list
+// @Success 200 {object} utils.JSONStruct{data=PositionView}
+// @Failure 400
+// @router /position [get]
+// @Security ApiKeyAuth
+// @SecurityDefinition BearerAuth api_key Authorization header with JWT token
+// @Param Authorization header string true "With the bearer in front"
 func (c *PositionController) GetPositionList() {
 	c.RequireLogin()
 
@@ -110,6 +129,16 @@ func (c *PositionController) GetPositionList() {
 }
 
 // swagger comment
+// @Title  delete position
+// @tags positions
+// @Description delete position
+// @Param	position_code		query		string	true		"position code"
+// @Success 200 {object} utils.JSONStruct
+// @Failure 400
+// @router /position [delete]
+// @Security ApiKeyAuth
+// @SecurityDefinition BearerAuth api_key Authorization header with JWT token
+// @Param Authorization header string true "With the bearer in front"
 func (c *PositionController) DeletePosition() {
 	c.RequireLogin()
 
