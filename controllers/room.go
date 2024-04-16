@@ -24,6 +24,16 @@ type RoomView struct {
 }
 
 // swagger comments
+// @Title add or update room
+// @tags rooms
+// @Description add or update room
+// @Param	roomDetail		body		RoomView	true		"room detail"
+// @Success 200 {object} utils.JSONStruct
+// @Failure 400
+// @router /room [post]
+// @Security ApiKeyAuth
+// @SecurityDefinition BearerAuth api_key Authorization header with JWT token
+// @Param Authorization header string false "With the bearer in front"
 func (c *RoomController) PostAndUpdRoom() {
 	c.RequireLogin()
 
@@ -78,6 +88,15 @@ func (c *RoomController) PostAndUpdRoom() {
 }
 
 // swagger comment
+// @Title Get room list
+// @tags rooms
+// @Description get room list
+// @Success 200 {object} utils.JSONStruct{data=RoomView}
+// @Failure 400
+// @router /room [get]
+// @Security ApiKeyAuth
+// @SecurityDefinition BearerAuth api_key Authorization header with JWT token
+// @Param Authorization header string true "With the bearer in front"
 func (c *RoomController) GetRoomList() {
 	c.RequireLogin()
 
@@ -102,6 +121,16 @@ func (c *RoomController) GetRoomList() {
 }
 
 // swagger comment
+// @Title  delete room
+// @tags rooms
+// @Description delete room
+// @Param	room_name		query		string	true		"room name"
+// @Success 200 {object} utils.JSONStruct
+// @Failure 400
+// @router /room [delete]
+// @Security ApiKeyAuth
+// @SecurityDefinition BearerAuth api_key Authorization header with JWT token
+// @Param Authorization header string true "With the bearer in front"
 func (c *RoomController) DeleteRoom() {
 	c.RequireLogin()
 

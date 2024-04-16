@@ -25,6 +25,16 @@ type ClientView struct {
 }
 
 // swagger comments
+// @Title add or update client
+// @tags clients
+// @Description add or update client
+// @Param	clientDetail		body		ClientView	true		"client detail"
+// @Success 200 {object} utils.JSONStruct
+// @Failure 400
+// @router /client [post]
+// @Security ApiKeyAuth
+// @SecurityDefinition BearerAuth api_key Authorization header with JWT token
+// @Param Authorization header string false "With the bearer in front"
 func (c *ClientController) PostAndUpdClient() {
 	c.RequireLogin()
 
@@ -81,6 +91,15 @@ func (c *ClientController) PostAndUpdClient() {
 }
 
 // swagger comment
+// @Title Get client list
+// @tags clients
+// @Description get client list
+// @Success 200 {object} utils.JSONStruct{data=ClientView}
+// @Failure 400
+// @router /client [get]
+// @Security ApiKeyAuth
+// @SecurityDefinition BearerAuth api_key Authorization header with JWT token
+// @Param Authorization header string true "With the bearer in front"
 func (c *ClientController) GetClientList() {
 	c.RequireLogin()
 
@@ -106,10 +125,20 @@ func (c *ClientController) GetClientList() {
 }
 
 // swagger comment
+// @Title  delete client
+// @tags clients
+// @Description delete client
+// @Param	client_code		query		string	true		"client code"
+// @Success 200 {object} utils.JSONStruct
+// @Failure 400
+// @router /client [delete]
+// @Security ApiKeyAuth
+// @SecurityDefinition BearerAuth api_key Authorization header with JWT token
+// @Param Authorization header string true "With the bearer in front"
 func (c *ClientController) DeleteClient() {
 	c.RequireLogin()
 
-	delClient := c.GetString("client_name")
+	delClient := c.GetString("client_code")
 
 	o := orm.NewOrmUsingDB("default")
 	client, err := models.GetClient(delClient, o)
