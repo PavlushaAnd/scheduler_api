@@ -101,9 +101,10 @@ func (c *ProjectController) PostAndUpdProject() {
 func (c *ProjectController) GetProjectList() {
 	c.RequireLogin()
 	filterInactive, _ := c.GetBool("filter_inactive")
+	client := c.GetString("client")
 
 	o := orm.NewOrmUsingDB("default")
-	projectList, err := models.ListProject("", filterInactive, o)
+	projectList, err := models.ListProject(client, filterInactive, o)
 	if err != nil {
 		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: err.Error()}
 		c.ServeJSON()

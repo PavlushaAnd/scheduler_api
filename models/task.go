@@ -15,8 +15,9 @@ type Task struct {
 	Title        string    `orm:"column(title)"`
 	UserCode     string    `orm:"column(user_code)"`
 	RoomName     string    `orm:"column(room_name)"`
+	ProjectName  string    `orm:"column(project_name)"`
+	ClientCode   string    `orm:"column(client_code)"`
 	Description  string    `orm:"column(description); null"`
-	Location     string    `orm:"column(location)"`
 	Repeatable   string    `orm:"column(repeatable)"`
 	StartDate    time.Time `orm:"type(datetime); column(start_date)"`
 	EndDate      time.Time `orm:"type(datetime); column(end_date)"`
@@ -35,7 +36,8 @@ type FTask struct {
 	Description  string
 	UserCode     string
 	RoomName     string
-	Location     string
+	ProjectName  string
+	ClientCode   string
 	Repeatable   string
 	StartDate    string
 	EndDate      string
@@ -133,9 +135,10 @@ func UpdateTask(tid string, tt *FTask, code string) error {
 	updTask.Description = changeTask.Description
 	updTask.StartDate = changeTask.StartDate
 	updTask.EndDate = changeTask.EndDate
-	updTask.Location = changeTask.Location
+	updTask.ProjectName = changeTask.ProjectName
 	updTask.UserCode = changeTask.UserCode
 	updTask.RoomName = changeTask.RoomName
+	updTask.ClientCode = changeTask.ClientCode
 	updTask.LastModified = time.Now()
 	updTask.EditorCode = code
 	if (changeTask.Repeatable != "") && (!changeTask.RecEndDate.IsZero()) {
@@ -188,8 +191,9 @@ func CascadeUpdateRecurrentTask(tid string, tt *FTask, code string) (res *FTask,
 		o.QueryTable("task").Filter("task_code", task).One(updTask)
 		updTask.Title = changeTask.Title
 		updTask.Description = changeTask.Description
-		updTask.Location = changeTask.Location
+		updTask.ProjectName = changeTask.ProjectName
 		updTask.UserCode = changeTask.UserCode
+		updTask.ClientCode = changeTask.ClientCode
 		updTask.RoomName = changeTask.RoomName
 		updTask.LastModified = time.Now()
 		updTask.EditorCode = code
@@ -321,7 +325,8 @@ func ConvertTaskToBackend(t *FTask) (*Task, error) {
 	res.Repeatable = t.Repeatable
 	res.Description = t.Description
 	res.Task_code = t.Task_code
-	res.Location = t.Location
+	res.ProjectName = t.ProjectName
+	res.ClientCode = t.ClientCode
 	return res, nil
 }
 
@@ -340,7 +345,8 @@ func ConvertTaskToFrontend(t *Task) *FTask {
 	res.Repeatable = t.Repeatable
 	res.Description = t.Description
 	res.Task_code = t.Task_code
-	res.Location = t.Location
+	res.ProjectName = t.ProjectName
+	res.ClientCode = t.ClientCode
 	res.EndDate = endDate
 	res.StartDate = startDate
 	res.RecStartDate = t.RecStartDate.Format(customLayout)
