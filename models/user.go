@@ -71,7 +71,7 @@ func UpdateUserPwd(user *User, o orm.Ormer) error {
 }
 
 func UpdateUserWithoutPwd(user *User, o orm.Ormer) error {
-	_, err := o.Update(user, "user_name", "phone_no", "email_address", "inactive", "role", "has_uploaded_page", "has_recognised_page", "has_confirmed_page", "has_posted_page", "editor_code", "last_modified")
+	_, err := o.Update(user, "user_name", "phone_no", "email_address", "inactive", "role", "has_uploaded_page", "has_recognised_page", "has_confirmed_page", "has_posted_page", "editor_code", "last_modified", "color_text", "color_background")
 	if err != nil {
 		return err
 	}
