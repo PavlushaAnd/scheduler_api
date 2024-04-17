@@ -48,10 +48,12 @@ func DeleteRoom(room *Room, o orm.Ormer) error {
 	return nil
 }
 
-func ListRoom(roomName string, o orm.Ormer) ([]*Room, error) {
+func ListRoom(roomName string, filterInactive bool, o orm.Ormer) ([]*Room, error) {
 	var rooms []*Room
 	qs := o.QueryTable(new(Room))
-
+	if filterInactive {
+		qs = qs.Filter("inactive", 0)
+	}
 	if roomName != "" {
 		qs = qs.Filter("name__icontains", roomName)
 	}

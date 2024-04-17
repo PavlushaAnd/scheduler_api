@@ -91,6 +91,7 @@ func (c *RoomController) PostAndUpdRoom() {
 // @Title Get room list
 // @tags rooms
 // @Description get room list
+// @Param	filter_inactive	query	bool	false	"hide inactive rooms"
 // @Success 200 {object} utils.JSONStruct{data=RoomView}
 // @Failure 400
 // @router /room [get]
@@ -99,9 +100,10 @@ func (c *RoomController) PostAndUpdRoom() {
 // @Param Authorization header string true "With the bearer in front"
 func (c *RoomController) GetRoomList() {
 	c.RequireLogin()
+	filterInactive, _ := c.GetBool("filter_inactive")
 
 	o := orm.NewOrmUsingDB("default")
-	roomList, err := models.ListRoom("", o)
+	roomList, err := models.ListRoom("", filterInactive, o)
 	if err != nil {
 		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: err.Error()}
 		c.ServeJSON()

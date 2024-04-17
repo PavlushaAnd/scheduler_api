@@ -49,9 +49,13 @@ func DeleteClient(client *Client, o orm.Ormer) error {
 	return nil
 }
 
-func ListClient(clientName string, o orm.Ormer) ([]*Client, error) {
+func ListClient(clientName string, filterInactive bool, o orm.Ormer) ([]*Client, error) {
 	var client []*Client
 	qs := o.QueryTable(new(Client))
+
+	if filterInactive {
+		qs = qs.Filter("inactive", 0)
+	}
 
 	if clientName != "" {
 		qs = qs.Filter("name__icontains", clientName)

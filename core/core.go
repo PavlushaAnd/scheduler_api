@@ -283,14 +283,14 @@ func (c *Core) UpdateUserTokenExpireTimeInCache(userToken string) error {
 	return nil
 }
 
-func (c *Core) GetUserTokenExpireTimeFromCache(userToken string) (int64, error) {
+func (c *Core) GetUserTokenExpireTimeFromCache(userToken string) int64 {
 	if TOKENCACHE != nil {
 		tmp, _ := TOKENCACHE.Get(c.Ctx.Request.Context(), userToken)
 		if tmp != nil {
-			return tmp.(int64), nil
+			return tmp.(int64)
 		}
 	}
-	return 0, fmt.Errorf("token is empty")
+	return 0
 }
 
 // RequireLogin is used by majority of APIs

@@ -91,6 +91,7 @@ func (c *ProjectController) PostAndUpdProject() {
 // @Title Get project list
 // @tags projects
 // @Description get project list
+// @Param	filter_inactive	query	bool	false	"hide inactive project"
 // @Success 200 {object} utils.JSONStruct{data=ProjectView}
 // @Failure 400
 // @router /project [get]
@@ -99,9 +100,10 @@ func (c *ProjectController) PostAndUpdProject() {
 // @Param Authorization header string true "With the bearer in front"
 func (c *ProjectController) GetProjectList() {
 	c.RequireLogin()
+	filterInactive, _ := c.GetBool("filter_inactive")
 
 	o := orm.NewOrmUsingDB("default")
-	projectList, err := models.ListProject("", o)
+	projectList, err := models.ListProject("", filterInactive, o)
 	if err != nil {
 		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: err.Error()}
 		c.ServeJSON()

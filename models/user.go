@@ -79,10 +79,13 @@ func UpdateUserWithoutPwd(user *User, o orm.Ormer) error {
 	return nil
 }
 
-func ListUser(userName string, page, pageSize int, o orm.Ormer) ([]*User, int, error) {
+func ListUser(userName string, page, pageSize int, filterInactive bool, o orm.Ormer) ([]*User, int, error) {
 	var users []*User
 
 	qs := o.QueryTable(new(User)) //.Filter("inactive", 0)
+	if filterInactive {
+		qs = qs.Filter("inactive", 0)
+	}
 
 	if userName != "" {
 		qs = qs.Filter("user_name__icontains", userName)

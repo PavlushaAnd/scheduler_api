@@ -115,6 +115,7 @@ func (c *CoreController) Login() {
 // @Description get user list
 // @Param	pageindex	query	int	true	"page index"
 // @Param	pagesize	query	int	true	"page size"
+// @Param	filter_inactive	query	bool	false	"hide inactive users"
 // @Success 200 {object} utils.JSONStruct{data=core.UserPage}
 // @Failure 400
 // @router /user/userlist [get]
@@ -143,9 +144,11 @@ func (c *CoreController) GetUserList() {
 		return
 	}
 
+	filterInactive, _ := c.GetBool("filter_inactive")
+
 	o := orm.NewOrmUsingDB("default")
 
-	userList, cnt, err := models.ListUser("", pageIndex, pageSize, o)
+	userList, cnt, err := models.ListUser("", pageIndex, pageSize, filterInactive, o)
 	if err != nil {
 		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: err.Error()}
 		c.ServeJSON()
@@ -162,12 +165,7 @@ func (c *CoreController) GetUserList() {
 			return
 		}
 		if lastLoginToken != "" {
-			exptime, err := c.GetUserTokenExpireTimeFromCache(lastLoginToken)
-			if err != nil {
-				c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: err.Error()}
-				c.ServeJSON()
-				return
-			}
+			exptime := c.GetUserTokenExpireTimeFromCache(lastLoginToken)
 			if diff := exptime - time.Now().Unix(); diff > int64(2700) {
 				isOnline = true
 			}

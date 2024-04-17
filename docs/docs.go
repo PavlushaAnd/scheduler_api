@@ -28,6 +28,12 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
+                        "type": "boolean",
+                        "description": "hide inactive clients",
+                        "name": "filter_inactive",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
                         "description": "With the bearer in front",
                         "name": "Authorization",
@@ -150,6 +156,12 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
+                        "type": "boolean",
+                        "description": "hide inactive position",
+                        "name": "filter_inactive",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
                         "description": "With the bearer in front",
                         "name": "Authorization",
@@ -271,6 +283,12 @@ const docTemplate = `{
                     "projects"
                 ],
                 "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "hide inactive project",
+                        "name": "filter_inactive",
+                        "in": "query"
+                    },
                     {
                         "type": "string",
                         "description": "With the bearer in front",
@@ -400,6 +418,12 @@ const docTemplate = `{
                     "rooms"
                 ],
                 "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "hide inactive rooms",
+                        "name": "filter_inactive",
+                        "in": "query"
+                    },
                     {
                         "type": "string",
                         "description": "With the bearer in front",
@@ -1039,6 +1063,12 @@ const docTemplate = `{
                         "name": "pagesize",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "hide inactive users",
+                        "name": "filter_inactive",
+                        "in": "query"
                     },
                     {
                         "type": "string",

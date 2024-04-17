@@ -94,6 +94,7 @@ func (c *ClientController) PostAndUpdClient() {
 // @Title Get client list
 // @tags clients
 // @Description get client list
+// @Param	filter_inactive	query	bool	false	"hide inactive clients"
 // @Success 200 {object} utils.JSONStruct{data=ClientView}
 // @Failure 400
 // @router /client [get]
@@ -102,9 +103,10 @@ func (c *ClientController) PostAndUpdClient() {
 // @Param Authorization header string true "With the bearer in front"
 func (c *ClientController) GetClientList() {
 	c.RequireLogin()
+	filterInactive, _ := c.GetBool("filter_inactive")
 
 	o := orm.NewOrmUsingDB("default")
-	clientList, err := models.ListClient("", o)
+	clientList, err := models.ListClient("", filterInactive, o)
 	if err != nil {
 		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: err.Error()}
 		c.ServeJSON()

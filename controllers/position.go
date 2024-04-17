@@ -97,6 +97,7 @@ func (c *PositionController) PostAndUpdPosition() {
 // @Title Get position list
 // @tags positions
 // @Description get position list
+// @Param	filter_inactive	query	bool	false	"hide inactive position"
 // @Success 200 {object} utils.JSONStruct{data=PositionView}
 // @Failure 400
 // @router /position [get]
@@ -106,8 +107,10 @@ func (c *PositionController) PostAndUpdPosition() {
 func (c *PositionController) GetPositionList() {
 	c.RequireLogin()
 
+	filterInactive, _ := c.GetBool("filter_inactive")
+
 	o := orm.NewOrmUsingDB("default")
-	positionList, err := models.ListPosition("", o)
+	positionList, err := models.ListPosition("", filterInactive, o)
 	if err != nil {
 		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: err.Error()}
 		c.ServeJSON()

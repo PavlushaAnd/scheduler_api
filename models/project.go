@@ -48,9 +48,13 @@ func DeleteProject(project *Project, o orm.Ormer) error {
 	return nil
 }
 
-func ListProject(projectName string, o orm.Ormer) ([]*Project, error) {
+func ListProject(projectName string, filterInactive bool, o orm.Ormer) ([]*Project, error) {
 	var projects []*Project
 	qs := o.QueryTable(new(Project))
+
+	if filterInactive {
+		qs = qs.Filter("inactive", 0)
+	}
 
 	if projectName != "" {
 		qs = qs.Filter("name__icontains", projectName)
