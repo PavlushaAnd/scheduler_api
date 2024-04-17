@@ -155,13 +155,15 @@ definitions:
     type: object
   models.FTask:
     properties:
+      clientCode:
+        type: string
       description:
         type: string
       endDate:
         type: string
       hours:
         type: string
-      location:
+      projectName:
         type: string
       recEndDate:
         type: string
@@ -386,6 +388,10 @@ paths:
         in: query
         name: filter_inactive
         type: boolean
+      - description: filter by client
+        in: query
+        name: client
+        type: string
       - description: With the bearer in front
         in: header
         name: Authorization

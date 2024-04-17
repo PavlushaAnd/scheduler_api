@@ -291,6 +291,12 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "filter by client",
+                        "name": "client",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
                         "description": "With the bearer in front",
                         "name": "Authorization",
                         "in": "header",
@@ -1339,6 +1345,9 @@ const docTemplate = `{
         "models.FTask": {
             "type": "object",
             "properties": {
+                "clientCode": {
+                    "type": "string"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -1348,7 +1357,7 @@ const docTemplate = `{
                 "hours": {
                     "type": "string"
                 },
-                "location": {
+                "projectName": {
                     "type": "string"
                 },
                 "recEndDate": {

@@ -92,6 +92,7 @@ func (c *ProjectController) PostAndUpdProject() {
 // @tags projects
 // @Description get project list
 // @Param	filter_inactive	query	bool	false	"hide inactive project"
+// @Param	client	query	string	false	"filter by client"
 // @Success 200 {object} utils.JSONStruct{data=ProjectView}
 // @Failure 400
 // @router /project [get]
