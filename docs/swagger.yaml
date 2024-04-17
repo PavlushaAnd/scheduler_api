@@ -13,6 +13,23 @@ definitions:
       client_sequence:
         type: integer
     type: object
+  controllers.LeaveTypeView:
+    properties:
+      leave_type_code:
+        type: string
+      leave_type_color_background:
+        type: string
+      leave_type_color_text:
+        type: string
+      leave_type_id:
+        type: integer
+      leave_type_inactive:
+        type: boolean
+      leave_type_name:
+        type: string
+      leave_type_sequence:
+        type: integer
+    type: object
   controllers.LoginParam:
     properties:
       password:
@@ -274,6 +291,83 @@ paths:
       - ApiKeyAuth: []
       tags:
       - clients
+  /leave_type:
+    delete:
+      description: delete leave types
+      parameters:
+      - description: leave type code
+        in: query
+        name: leave_type_code
+        required: true
+        type: string
+      - description: With the bearer in front
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.JSONStruct'
+        "400":
+          description: Bad Request
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - leave types
+    get:
+      description: get leave type list
+      parameters:
+      - description: hide inactive leave types
+        in: query
+        name: filter_inactive
+        type: boolean
+      - description: With the bearer in front
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.JSONStruct'
+            - properties:
+                data:
+                  $ref: '#/definitions/controllers.LeaveTypeView'
+              type: object
+        "400":
+          description: Bad Request
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - leave types
+    post:
+      description: add or update leave type
+      parameters:
+      - description: leave type detail
+        in: body
+        name: leaveTypeDetail
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.LeaveTypeView'
+      - description: With the bearer in front
+        in: header
+        name: Authorization
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.JSONStruct'
+        "400":
+          description: Bad Request
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - leave types
   /position:
     delete:
       description: delete position

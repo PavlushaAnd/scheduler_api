@@ -141,6 +141,134 @@
                 }
             }
         },
+        "/leave_type": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "get leave type list",
+                "tags": [
+                    "leave types"
+                ],
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "hide inactive leave types",
+                        "name": "filter_inactive",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "With the bearer in front",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.JSONStruct"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/controllers.LeaveTypeView"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "add or update leave type",
+                "tags": [
+                    "leave types"
+                ],
+                "parameters": [
+                    {
+                        "description": "leave type detail",
+                        "name": "leaveTypeDetail",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.LeaveTypeView"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "With the bearer in front",
+                        "name": "Authorization",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.JSONStruct"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "delete leave types",
+                "tags": [
+                    "leave types"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "leave type code",
+                        "name": "leave_type_code",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "With the bearer in front",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.JSONStruct"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
         "/position": {
             "get": {
                 "security": [
@@ -1125,6 +1253,32 @@
                     "type": "string"
                 },
                 "client_sequence": {
+                    "type": "integer"
+                }
+            }
+        },
+        "controllers.LeaveTypeView": {
+            "type": "object",
+            "properties": {
+                "leave_type_code": {
+                    "type": "string"
+                },
+                "leave_type_color_background": {
+                    "type": "string"
+                },
+                "leave_type_color_text": {
+                    "type": "string"
+                },
+                "leave_type_id": {
+                    "type": "integer"
+                },
+                "leave_type_inactive": {
+                    "type": "boolean"
+                },
+                "leave_type_name": {
+                    "type": "string"
+                },
+                "leave_type_sequence": {
                     "type": "integer"
                 }
             }
