@@ -50,6 +50,10 @@ func init() {
 		beego.NSRouter("/position", &controllers.PositionController{}, "get:GetPositionList"),
 		beego.NSRouter("/position", &controllers.PositionController{}, "post:PostAndUpdPosition"),
 		beego.NSRouter("/position", &controllers.PositionController{}, "delete:DeletePosition"),
+		//endpoints for leave type
+		beego.NSRouter("/leave_type", &controllers.LeaveTypeController{}, "get:GetLeaveTypeList"),
+		beego.NSRouter("/leave_type", &controllers.LeaveTypeController{}, "post:PostAndUpdLeaveType"),
+		beego.NSRouter("/leave_type", &controllers.LeaveTypeController{}, "delete:DeleteLeaveType"),
 	)
 	beego.AddNamespace(ns)
 }
