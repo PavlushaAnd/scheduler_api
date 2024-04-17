@@ -50,9 +50,12 @@ func DeletePosition(position *Position, o orm.Ormer) error {
 	return nil
 }
 
-func ListPosition(positionCode string, o orm.Ormer) ([]*Position, error) {
+func ListPosition(positionCode string, filterInactive bool, o orm.Ormer) ([]*Position, error) {
 	var position []*Position
 	qs := o.QueryTable(new(Position))
+	if filterInactive {
+		qs = qs.Filter("inactive", 0)
+	}
 
 	if positionCode != "" {
 		qs = qs.Filter("name__icontains", positionCode)

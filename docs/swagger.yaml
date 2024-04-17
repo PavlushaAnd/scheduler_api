@@ -155,13 +155,15 @@ definitions:
     type: object
   models.FTask:
     properties:
+      clientCode:
+        type: string
       description:
         type: string
       endDate:
         type: string
       hours:
         type: string
-      location:
+      projectName:
         type: string
       recEndDate:
         type: string
@@ -223,6 +225,10 @@ paths:
     get:
       description: get client list
       parameters:
+      - description: hide inactive clients
+        in: query
+        name: filter_inactive
+        type: boolean
       - description: With the bearer in front
         in: header
         name: Authorization
@@ -296,6 +302,10 @@ paths:
     get:
       description: get position list
       parameters:
+      - description: hide inactive position
+        in: query
+        name: filter_inactive
+        type: boolean
       - description: With the bearer in front
         in: header
         name: Authorization
@@ -374,6 +384,14 @@ paths:
     get:
       description: get project list
       parameters:
+      - description: hide inactive project
+        in: query
+        name: filter_inactive
+        type: boolean
+      - description: filter by client
+        in: query
+        name: client
+        type: string
       - description: With the bearer in front
         in: header
         name: Authorization
@@ -447,6 +465,10 @@ paths:
     get:
       description: get room list
       parameters:
+      - description: hide inactive rooms
+        in: query
+        name: filter_inactive
+        type: boolean
       - description: With the bearer in front
         in: header
         name: Authorization
@@ -819,6 +841,10 @@ paths:
         name: pagesize
         required: true
         type: integer
+      - description: hide inactive users
+        in: query
+        name: filter_inactive
+        type: boolean
       - description: With the bearer in front
         in: header
         name: Authorization

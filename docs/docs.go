@@ -28,6 +28,12 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
+                        "type": "boolean",
+                        "description": "hide inactive clients",
+                        "name": "filter_inactive",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
                         "description": "With the bearer in front",
                         "name": "Authorization",
@@ -150,6 +156,12 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
+                        "type": "boolean",
+                        "description": "hide inactive position",
+                        "name": "filter_inactive",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
                         "description": "With the bearer in front",
                         "name": "Authorization",
@@ -271,6 +283,18 @@ const docTemplate = `{
                     "projects"
                 ],
                 "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "hide inactive project",
+                        "name": "filter_inactive",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "filter by client",
+                        "name": "client",
+                        "in": "query"
+                    },
                     {
                         "type": "string",
                         "description": "With the bearer in front",
@@ -400,6 +424,12 @@ const docTemplate = `{
                     "rooms"
                 ],
                 "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "hide inactive rooms",
+                        "name": "filter_inactive",
+                        "in": "query"
+                    },
                     {
                         "type": "string",
                         "description": "With the bearer in front",
@@ -1041,6 +1071,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "boolean",
+                        "description": "hide inactive users",
+                        "name": "filter_inactive",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
                         "description": "With the bearer in front",
                         "name": "Authorization",
@@ -1309,6 +1345,9 @@ const docTemplate = `{
         "models.FTask": {
             "type": "object",
             "properties": {
+                "clientCode": {
+                    "type": "string"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -1318,7 +1357,7 @@ const docTemplate = `{
                 "hours": {
                     "type": "string"
                 },
-                "location": {
+                "projectName": {
                     "type": "string"
                 },
                 "recEndDate": {
