@@ -44,7 +44,7 @@ func (c *ClientController) PostAndUpdClient() {
 	err := json.Unmarshal(c.Ctx.Input.RequestBody, d)
 	if err != nil {
 		logger.E("json.Unmarshal failed, err", err)
-		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorParseJson, Msg: "Request body is not a valid json"}
+		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorParseJson, Msg: "request body is not a valid json"}
 		c.ServeJSON()
 		return
 	}
