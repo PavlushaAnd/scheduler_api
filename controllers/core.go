@@ -307,7 +307,7 @@ func (c *CoreController) AddOrUpdateUser() {
 			ColorBackground:   d.ColorBackground,
 			Password:          utils.GetMd5StrWithSalt(d.Password, d.UserCode),
 			LastModified:      time.Now(),
-			EditorCode:        c.CurrentUserDetail.PositionCode,
+			EditorCode:        c.CurrentUserDetail.UserCode,
 		}
 		//update to db
 		user.Id = d.Id
