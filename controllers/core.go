@@ -254,6 +254,12 @@ func (c *CoreController) AddOrUpdateUser() {
 		}
 	}
 
+	if d.Inactive {
+		if d.UserCode == c.CurrentUserDetail.UserCode {
+			c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorLogic, Msg: "do not deactivate yourself"}
+		}
+	}
+
 	o := orm.NewOrmUsingDB("default")
 
 	position := models.Position{}
