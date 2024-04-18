@@ -52,6 +52,11 @@ func init() {
 
 func AddTask(o orm.Ormer, t *Task) (string, error) {
 
+	err := CheckDependencies(t, o)
+	if err != nil {
+		return "", err
+	}
+
 	t.Task_code = "task_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	if t.Repeatable != "" {
 		rt, recErr := CreateRecurrence(t, t.CreatorCode)
@@ -120,12 +125,16 @@ func GetAllTasks() ([]*FTask, error) {
 func UpdateTask(tid string, tt *FTask, code string) error {
 	o := orm.NewOrm()
 
-	changeTask, convertErr := ConvertTaskToBackend(tt)
-	if convertErr != nil {
-		return convertErr
+	changeTask, err := ConvertTaskToBackend(tt)
+	if err != nil {
+		return err
+	}
+	err = CheckDependencies(changeTask, o)
+	if err != nil {
+		return err
 	}
 	updTask := new(Task)
-	err := o.QueryTable("task").Filter("task_code", tid).One(updTask)
+	err = o.QueryTable("task").Filter("task_code", tid).One(updTask)
 	if err == orm.ErrNoRows {
 		return fmt.Errorf("item with ID %v not found", tid)
 	} else if err != nil {
@@ -174,6 +183,10 @@ func CascadeUpdateRecurrentTask(tid string, tt *FTask, code string) (res *FTask,
 	changeTask, convertErr := ConvertTaskToBackend(tt)
 	if convertErr != nil {
 		return nil, convertErr
+	}
+	err = CheckDependencies(changeTask, o)
+	if err != nil {
+		return nil, err
 	}
 	err = o.QueryTable("task").Filter("task_code", tid).One(updTask)
 	if err == orm.ErrNoRows {
@@ -415,4 +428,41 @@ func CreateRecurrence(t *Task, code string) (recTaskList []*Task, recError error
 		return nil, errors.New("wrong recurrence format")
 	}
 	return
+}
+
+func CheckDependencies(t *Task, o orm.Ormer) error {
+	user := User{}
+	err := o.QueryTable("user").Filter("user_code", t.UserCode).One(&user)
+	if err != nil {
+		return fmt.Errorf("user %s not exist in the database", t.UserCode)
+	}
+	if user.Inactive {
+		return fmt.Errorf("user %s is inactive", t.UserCode)
+	}
+	room := Room{}
+	err = o.QueryTable("room").Filter("name", t.RoomName).One(&room)
+	if err != nil {
+		return fmt.Errorf("room %s not exist in the database", t.RoomName)
+	}
+	if room.Inactive {
+		return fmt.Errorf("room %s is inactive", t.RoomName)
+	}
+	client := Client{}
+	err = o.QueryTable("client").Filter("code", t.ClientCode).One(&client)
+	if err != nil {
+		return fmt.Errorf("client %s not exist in the database", t.ClientCode)
+	}
+	if client.Inactive {
+		return fmt.Errorf("client %s is inactive", t.ClientCode)
+	}
+	project := Project{}
+	err = o.QueryTable("project").Filter("name", fmt.Sprintf("%s_%s", t.ClientCode, t.ProjectName)).One(&project)
+	if err != nil {
+		return fmt.Errorf("project %s not exist in the database", t.ProjectName)
+	}
+	if project.Inactive {
+		return fmt.Errorf("project %s is inactive", t.ProjectName)
+	}
+
+	return nil
 }
