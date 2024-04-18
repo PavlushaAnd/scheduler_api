@@ -51,6 +51,18 @@ func (c *ProjectController) PostAndUpdProject() {
 	}
 
 	o := orm.NewOrmUsingDB("default")
+	client := models.Client{}
+	err = o.QueryTable("client").Filter("code", d.ClientCode).One(&client)
+	if err != nil {
+		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: fmt.Sprintf("client %s not exist in the database", d.ClientCode)}
+		c.ServeJSON()
+		return
+	}
+	if client.Inactive {
+		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorLogic, Msg: fmt.Sprintf("client %s is inactive", d.ClientCode)}
+		c.ServeJSON()
+		return
+	}
 
 	if d.Id == 0 {
 		project := &models.Project{

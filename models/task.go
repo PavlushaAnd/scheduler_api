@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/beego/beego/v2/client/orm"
@@ -16,7 +17,6 @@ type Task struct {
 	UserCode     string    `orm:"column(user_code)"`
 	RoomName     string    `orm:"column(room_name)"`
 	ProjectName  string    `orm:"column(project_name)"`
-	ClientCode   string    `orm:"column(client_code)"`
 	Description  string    `orm:"column(description); null"`
 	Repeatable   string    `orm:"column(repeatable)"`
 	StartDate    time.Time `orm:"type(datetime); column(start_date)"`
@@ -147,7 +147,6 @@ func UpdateTask(tid string, tt *FTask, code string) error {
 	updTask.ProjectName = changeTask.ProjectName
 	updTask.UserCode = changeTask.UserCode
 	updTask.RoomName = changeTask.RoomName
-	updTask.ClientCode = changeTask.ClientCode
 	updTask.LastModified = time.Now()
 	updTask.EditorCode = code
 	if (changeTask.Repeatable != "") && (!changeTask.RecEndDate.IsZero()) {
@@ -206,7 +205,6 @@ func CascadeUpdateRecurrentTask(tid string, tt *FTask, code string) (res *FTask,
 		updTask.Description = changeTask.Description
 		updTask.ProjectName = changeTask.ProjectName
 		updTask.UserCode = changeTask.UserCode
-		updTask.ClientCode = changeTask.ClientCode
 		updTask.RoomName = changeTask.RoomName
 		updTask.LastModified = time.Now()
 		updTask.EditorCode = code
@@ -339,7 +337,6 @@ func ConvertTaskToBackend(t *FTask) (*Task, error) {
 	res.Description = t.Description
 	res.Task_code = t.Task_code
 	res.ProjectName = t.ProjectName
-	res.ClientCode = t.ClientCode
 	return res, nil
 }
 
@@ -358,12 +355,15 @@ func ConvertTaskToFrontend(t *Task) *FTask {
 	res.Repeatable = t.Repeatable
 	res.Description = t.Description
 	res.Task_code = t.Task_code
-	res.ProjectName = t.ProjectName
-	res.ClientCode = t.ClientCode
 	res.EndDate = endDate
 	res.StartDate = startDate
 	res.RecStartDate = t.RecStartDate.Format(customLayout)
 	res.Hours = fmt.Sprintf("%.2f", duration)
+
+	projectName := strings.Split(t.ProjectName, "_")
+	res.ClientCode = projectName[0]
+	res.ProjectName = projectName[1]
+
 	return res
 }
 
@@ -447,16 +447,21 @@ func CheckDependencies(t *Task, o orm.Ormer) error {
 	if room.Inactive {
 		return fmt.Errorf("room %s is inactive", t.RoomName)
 	}
+	if strings.IndexByte(t.ProjectName, '_') == -1 {
+		return fmt.Errorf("wrong project name format")
+	}
+	projectName := strings.Split(t.ProjectName, "_")
+	clientCode := projectName[0]
 	client := Client{}
-	err = o.QueryTable("client").Filter("code", t.ClientCode).One(&client)
+	err = o.QueryTable("client").Filter("code", clientCode).One(&client)
 	if err != nil {
-		return fmt.Errorf("client %s not exist in the database", t.ClientCode)
+		return fmt.Errorf("client %s not exist in the database", clientCode)
 	}
 	if client.Inactive {
-		return fmt.Errorf("client %s is inactive", t.ClientCode)
+		return fmt.Errorf("client %s is inactive", clientCode)
 	}
 	project := Project{}
-	err = o.QueryTable("project").Filter("name", fmt.Sprintf("%s_%s", t.ClientCode, t.ProjectName)).One(&project)
+	err = o.QueryTable("project").Filter("name", t.ProjectName).One(&project)
 	if err != nil {
 		return fmt.Errorf("project %s not exist in the database", t.ProjectName)
 	}
