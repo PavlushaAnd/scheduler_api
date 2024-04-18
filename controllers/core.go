@@ -256,6 +256,19 @@ func (c *CoreController) AddOrUpdateUser() {
 
 	o := orm.NewOrmUsingDB("default")
 
+	position := models.Position{}
+	err = o.QueryTable("position").Filter("code", d.PositionCode).One(&position)
+	if err != nil {
+		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorDB, Msg: fmt.Sprintf("position %s not exist in the database", d.PositionCode)}
+		c.ServeJSON()
+		return
+	}
+	if position.Inactive {
+		c.Data["json"] = &utils.JSONStruct{Code: utils.ErrorLogic, Msg: fmt.Sprintf("position %s is inactive", d.PositionCode)}
+		c.ServeJSON()
+		return
+	}
+
 	//base64.StdEncoding.EncodeToString([]byte(d.Password))
 	if d.Id == 0 {
 		user := models.User{
