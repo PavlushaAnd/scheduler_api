@@ -42,6 +42,7 @@ type FTask struct {
 	StartDate    string
 	EndDate      string
 	Hours        string
+	IsHoliday    bool
 	RecEndDate   string
 	RecStartDate string
 }
@@ -360,9 +361,12 @@ func ConvertTaskToFrontend(t *Task) *FTask {
 	res.RecStartDate = t.RecStartDate.Format(customLayout)
 	res.Hours = fmt.Sprintf("%.2f", duration)
 
-	projectName := strings.Split(t.ProjectName, "_")
-	res.ClientCode = projectName[0]
-	res.ProjectName = projectName[1]
+	var projectName []string
+	if t.ProjectName != "" {
+		projectName = strings.Split(t.ProjectName, "_")
+		res.ClientCode = projectName[0]
+		res.ProjectName = projectName[1]
+	}
 
 	return res
 }
@@ -470,4 +474,23 @@ func CheckDependencies(t *Task, o orm.Ormer) error {
 	}
 
 	return nil
+}
+
+func CreateHolidays(tasks []*FTask) ([]*FTask, error) {
+	holidays, err := fetchHolidays()
+	if err != nil {
+		return nil, fmt.Errorf("")
+	}
+	for _, holiday := range holidays {
+		holidayTask := &FTask{
+			Task_code:   "HD",
+			Title:       holiday.HolidayName,
+			Description: "Public Holiday",
+			StartDate:   holiday.ObservedDate,
+			EndDate:     holiday.ObservedDate,
+			IsHoliday:   true,
+		}
+		tasks = append(tasks, holidayTask)
+	}
+	return tasks, nil
 }

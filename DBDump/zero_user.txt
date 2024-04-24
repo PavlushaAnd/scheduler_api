@@ -1,0 +1,6 @@
+'2', 'brunton', 'one', '', '0', '', 'b@gmail.com', '0', '0', '0', '0', '43960bae0e10d95717ba939201dbba61', 'admin', '#ffffff', '#62783b', '2024-04-17 15:20:01', '2024-04-11 11:39:49', 'admin', ''
+
+Put it in the dataabse table "user" to have user to login and creating new uers
+
+name    : passsword
+brunton : brunton5

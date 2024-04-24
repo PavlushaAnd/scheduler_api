@@ -70,6 +70,11 @@ func (c *TaskController) GetAll() {
 		c.ServeJSON()
 		return
 	}
+	tasks, err = models.CreateHolidays(tasks)
+	if err != nil {
+		c.Data["json"] = err
+		c.ServeJSON()
+	}
 	if c.CurrentUserDetail.Role == "admin" {
 		c.Data["json"] = tasks
 		c.ServeJSON()
